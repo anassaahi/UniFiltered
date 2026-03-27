@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/feedFragment"
+        android:title="Feed"
+        android:icon="@android:drawable/ic_menu_compass" />
+
+    <item
+        android:id="@+id/newsFragment"
+        android:title="Society News"
+        android:icon="@android:drawable/ic_menu_today" />
+
+    <item
+        android:id="@+id/profileFragment"
+        android:title="Profile"
+        android:icon="@android:drawable/ic_menu_myplaces" />
+</menu>

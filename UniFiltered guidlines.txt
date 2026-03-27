@@ -1,0 +1,55 @@
+"UniFiltered" sounds like a highly practical and engaging project. Solving the fragmented communication problem on university campuses is a great use case, and the tech stack you've chosen (Kotlin, MVVM, Firebase) is exactly what you need to build a scalable, modern Android app. 
+
+Here is a step-by-step roadmap based on your requirements. We will treat this as our master plan. 
+
+### Phase 1: Foundation & Architecture Setup
+Before building screens, we need to wire up the core engine of the app.
+
+* **Dependencies:** Add libraries for ViewModel, LiveData/StateFlow, Coroutines, Navigation Component, and Glide/Coil (for images).
+* **Firebase Integration:** Connect the project to Firebase. Set up Authentication, Firestore (or Realtime Database), and Firebase Storage.
+* **Folder Structure:** Create the base packages (UI, ViewModels, Repositories, Models, Utils) to keep the MVVM architecture clean.
+
+### Phase 2: Authentication & Role-Based Access
+You need to know *who* is logging in before showing them the feed or letting them post.
+* **UI:** Build `LoginActivity` and `SignupActivity`.
+* **Auth System:** Implement Firebase Authentication (Email/Password). 
+* **Database Models:** Create user profiles in the database.
+* **Role-Based Access:** Assign roles during signup (e.g., "Student" vs. "Society"). This dictates whether they can access the society posting tools later.
+
+### Phase 3: Core Navigation & Scaffolding
+Setting up the main skeleton so users can move around the app.
+* **UI:** Build `MainActivity`.
+* **Navigation:** Implement a Bottom Navigation Bar.
+* **Fragment Hosts:** Wire up basic, empty versions of `FeedFragment`, `NewsFragment`, and `ProfileFragment` so the bottom navigation works.
+
+### Phase 4: The Social Feed (Posts)
+This is the core student interaction layer.
+* **Create Posts:** Build `CreatePostActivity` (text input, optional image upload to Firebase Storage).
+* **Feed UI:** Design the RecyclerView for `FeedFragment`.
+* **Data Layer:** Set up `PostRepository` and `FeedViewModel` to fetch posts from Firebase.
+* **Details:** Build `PostDetailActivity` to view a specific post.
+
+### Phase 5: Interactions & Real-Time Layer
+Making the app feel alive and engaging.
+* **Reactions:** Add like/upvote buttons to posts.
+* **Comments:** Add a comment section inside `PostDetailActivity`.
+* **Real-Time:** Use Firebase snapshot listeners in the Repository layer so that when someone comments or likes a post, the UI updates instantly without needing a refresh.
+
+### Phase 6: Society News & Events Module
+The dedicated space for official campus happenings.
+* **Gated Creation:** Create a flow where *only* accounts with the "Society" role can create a News/Event post.
+* **News UI:** Design the `NewsFragment` to display these official announcements, perhaps with a slightly different UI card than regular student posts to distinguish them.
+
+### Phase 7: Notification System
+Bringing users back into the app.
+* **Firebase Cloud Messaging (FCM):** Set up FCM.
+* **Triggers:** Configure triggers (either via Firebase Cloud Functions or client-side logic) to send push notifications when someone comments on a user's post, or when a society posts a new event.
+
+### Phase 8: Profiles & Final Polish
+Wrapping up the loose ends.
+* **Profile UI:** Build `ProfileFragment` where users can see their own info, log out, and view their past posts.
+* **Polish:** Add loading spinners, error handling (e.g., "No internet connection"), and refine the UI/UX.
+
+---
+
+Does this roadmap align with your vision for UniFiltered, and are you ready for me to guide you through Phase 1?

@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.gms.google-services") // Add this line
 }
 
 android {
@@ -34,6 +35,8 @@ android {
     }
     buildFeatures {
         compose = true
+        viewBinding = true
+
     }
 }
 
@@ -46,6 +49,10 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
+    implementation(libs.androidx.activity)
+    implementation(libs.androidx.constraintlayout)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -53,4 +60,26 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.7.0")
+    implementation("androidx.activity:activity-ktx:1.8.2")
+    implementation("androidx.fragment:fragment-ktx:1.6.2")
+
+    // Coroutines (For asynchronous background tasks)
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3") // Crucial for Firebase
+
+    // Navigation Component (For moving between fragments)
+    implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
+    implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
+
+    // Coil (Modern, lightweight image loading library for Kotlin)
+    implementation("io.coil-kt:coil:2.6.0")
+    // Firebase BoM (Bill of Materials - manages versions automatically)
+    implementation(platform("com.google.firebase:firebase-bom:32.8.0"))
+
+    // Firebase services
+    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-firestore-ktx") // Using Firestore instead of Realtime DB
+    implementation("com.google.firebase:firebase-storage-ktx")
 }

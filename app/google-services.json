@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "407157102400",
+    "project_id": "unifiltered",
+    "storage_bucket": "unifiltered.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:407157102400:android:600058fb68b4fa9ed34ca5",
+        "android_client_info": {
+          "package_name": "com.example.unifiltered"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCFK5RYrCuqC_rMKHdAHyIZkfCp7F2RX6g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
