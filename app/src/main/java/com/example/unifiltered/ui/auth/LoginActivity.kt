@@ -11,6 +11,9 @@ import com.example.unifiltered.databinding.ActivityLoginBinding
 import com.example.unifiltered.ui.MainActivity
 import com.example.unifiltered.viewmodel.AuthState
 import com.example.unifiltered.viewmodel.AuthViewModel
+import com.google.firebase.FirebaseApp
+import com.google.firebase.appcheck.FirebaseAppCheck
+import com.google.firebase.appcheck.debug.DebugAppCheckProviderFactory
 import kotlinx.coroutines.launch
 
 class LoginActivity : AppCompatActivity() {
@@ -20,9 +23,14 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        FirebaseApp.initializeApp(this)
+        val firebaseAppCheck = FirebaseAppCheck.getInstance()
+        firebaseAppCheck.installAppCheckProviderFactory(
+            DebugAppCheckProviderFactory.getInstance()
+        )
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        com.google.firebase.auth.FirebaseAuth.getInstance().firebaseAuthSettings.forceRecaptchaFlowForTesting(true)
         // Navigate to Signup
         binding.tvSignupLink.setOnClickListener {
             startActivity(Intent(this, SignupActivity::class.java))
@@ -39,6 +47,13 @@ class LoginActivity : AppCompatActivity() {
                 Toast.makeText(this, "Please enter email and password", Toast.LENGTH_SHORT).show()
             }
         }
+//        binding.btnLogin.setOnClickListener {
+//            // Bypass Firebase Auth temporarily!
+//            android.widget.Toast.makeText(this, "Skipping Login for Development!", android.widget.Toast.LENGTH_SHORT).show()
+//            val intent = android.content.Intent(this@LoginActivity, com.example.unifiltered.ui.MainActivity::class.java)
+//            startActivity(intent)
+//            finish()
+//        }
 
         lifecycleScope.launch {
             authViewModel.authState.collect { state ->

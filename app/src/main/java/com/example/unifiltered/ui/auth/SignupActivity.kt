@@ -22,7 +22,7 @@ class SignupActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivitySignupBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        com.google.firebase.auth.FirebaseAuth.getInstance().firebaseAuthSettings.forceRecaptchaFlowForTesting(true)
         // Navigate to Login
         binding.tvLoginLink.setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))

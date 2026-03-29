@@ -50,4 +50,9 @@ class FeedViewModel : ViewModel() {
     fun updateSearchQuery(query: String) {
         _searchQuery.value = query
     }
+    fun toggleLike(postId: String, isCurrentlyLiked: Boolean) {
+        viewModelScope.launch {
+            repository.toggleLike(postId, isCurrentlyLiked)
+        }
+    }
 }

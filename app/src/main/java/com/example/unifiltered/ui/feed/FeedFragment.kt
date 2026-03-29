@@ -49,10 +49,29 @@ class FeedFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        postAdapter = PostAdapter()
+        // Get the current user's ID
+        val currentUserId = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: ""
+
+        postAdapter = PostAdapter(
+            currentUserId = currentUserId,
+            onPostClick = { clickedPost ->
+                val intent = android.content.Intent(requireContext(), PostDetailActivity::class.java).apply {
+                    putExtra("POST_ID", clickedPost.postId)
+                    putExtra("AUTHOR_NAME", clickedPost.authorName)
+                    putExtra("CONTENT", clickedPost.content)
+                    putExtra("LIKES_COUNT", clickedPost.likedBy.size) // Note: Updated this line!
+                }
+                startActivity(intent)
+            },
+            onLikeClick = { clickedPost, isCurrentlyLiked ->
+                // Tell the ViewModel to update the database
+                viewModel.toggleLike(clickedPost.postId, isCurrentlyLiked)
+            }
+        )
+
         binding.recyclerViewFeed.apply {
             adapter = postAdapter
-            layoutManager = LinearLayoutManager(requireContext())
+            layoutManager = androidx.recyclerview.widget.LinearLayoutManager(requireContext())
         }
     }
 

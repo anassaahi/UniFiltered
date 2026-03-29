@@ -8,9 +8,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.tasks.await
+import com.google.firebase.firestore.FieldValue // NEW IMPORT
 class PostRepository {
     private val db = FirebaseFirestore.getInstance()
-
+    private val auth = FirebaseAuth.getInstance() // Centralized Auth instance
     // callbackFlow converts Firebase's real-time listener into a Kotlin Flow
     fun getAllPosts(): Flow<List<Post>> = callbackFlow {
         // Look in the "posts" collection and order by newest first
@@ -32,6 +33,23 @@ class PostRepository {
         // Clean up the listener if the user leaves the screen
         awaitClose { subscription.remove() }
     }
+    suspend fun toggleLike(postId: String, isCurrentlyLiked: Boolean): Result<Boolean> {
+        return try {
+            val currentUser = auth.currentUser ?: throw Exception("User not logged in")
+            val postRef = db.collection("posts").document(postId)
+
+            if (isCurrentlyLiked) {
+                // If they already liked it, remove their ID (Unlike)
+                postRef.update("likedBy", FieldValue.arrayRemove(currentUser.uid)).await()
+            } else {
+                // If they haven't liked it, add their ID (Like)
+                postRef.update("likedBy", FieldValue.arrayUnion(currentUser.uid)).await()
+            }
+            Result.success(true)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
     suspend fun createPost(content: String): Result<Boolean> {
         return try {
             val currentUser = FirebaseAuth.getInstance().currentUser
@@ -49,8 +67,9 @@ class PostRepository {
                 authorId = currentUser.uid,
                 authorName = authorName,
                 content = content,
-                timestamp = System.currentTimeMillis(),
-                likesCount = 0
+                timestamp = System.currentTimeMillis()
+                // We removed likesCount here.
+                // The Post model will automatically set 'likedBy' to an empty list!
             )
 
             // Save it to Firestore

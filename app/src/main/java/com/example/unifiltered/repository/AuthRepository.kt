@@ -1,9 +1,12 @@
 package com.example.unifiltered.repository
 
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.example.unifiltered.model.User
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.time.withTimeout
+import kotlinx.coroutines.withTimeout
 
 class AuthRepository {
     private val auth = FirebaseAuth.getInstance()
@@ -12,29 +15,34 @@ class AuthRepository {
     // Suspend function allows us to run this on a background thread using Coroutines
     suspend fun signUpUser(name: String, email: String, pass: String, role: String): Result<Boolean> {
         return try {
-            // 1. Create the user in Firebase Authentication
-            val authResult = auth.createUserWithEmailAndPassword(email, pass).await()
-            val userId = authResult.user?.uid
+            // Stop waiting if it takes longer than 8 seconds
+            withTimeout(20000) {
+                val authResult = auth.createUserWithEmailAndPassword(email, pass).await()
+                val userId = authResult.user?.uid
 
-            if (userId != null) {
-                // 2. Create the user profile object
-                val newUser = User(uid = userId, name = name, email = email, role = role)
-
-                // 3. Save the profile to Firestore in a "users" collection
-                db.collection("users").document(userId).set(newUser).await()
-                Result.success(true)
-            } else {
-                Result.failure(Exception("User creation failed"))
+                if (userId != null) {
+                    val newUser = User(uid = userId, name = name, email = email, role = role)
+                    db.collection("users").document(userId).set(newUser).await()
+                    Result.success(true)
+                } else {
+                    Result.failure(Exception("User creation failed: UID is null"))
+                }
             }
         } catch (e: Exception) {
+            Log.e("FIREBASE_AUTH_ERROR", "Sign Up Failed or Timed Out!", e)
             Result.failure(e)
         }
     }
+
     suspend fun loginUser(email: String, pass: String): Result<Boolean> {
         return try {
-            auth.signInWithEmailAndPassword(email, pass).await()
-            Result.success(true)
+            // Stop waiting if it takes longer than 8 seconds
+            withTimeout(20000) {
+                auth.signInWithEmailAndPassword(email, pass).await()
+                Result.success(true)
+            }
         } catch (e: Exception) {
+            Log.e("FIREBASE_AUTH_ERROR", "Login Failed or Timed Out!", e)
             Result.failure(e)
         }
     }
