@@ -3,11 +3,13 @@ package com.example.unifiltered.repository
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.example.unifiltered.model.Post
+import com.example.unifiltered.model.Comment
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.tasks.await
+
 import com.google.firebase.firestore.FieldValue // NEW IMPORT
 class PostRepository {
     private val db = FirebaseFirestore.getInstance()
@@ -74,6 +76,57 @@ class PostRepository {
 
             // Save it to Firestore
             db.collection("posts").document(postId).set(newPost).await()
+            Result.success(true)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+    // --- COMMENT FUNCTIONS ---
+
+    // 1. Listen for comments on a specific post (Oldest first, like a normal chat)
+    fun getComments(postId: String): Flow<List<Comment>> = callbackFlow {
+        val subscription = db.collection("posts").document(postId).collection("comments")
+            .orderBy("timestamp", Query.Direction.ASCENDING)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    close(error)
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null) {
+                    val comments = snapshot.toObjects(com.example.unifiltered.model.Comment::class.java)
+                    trySend(comments).isSuccess
+                }
+            }
+
+        awaitClose { subscription.remove() }
+    }
+
+    // 2. Add a new comment to a specific post's sub-collection
+    suspend fun addComment(postId: String, text: String): Result<Boolean> {
+        return try {
+            val currentUser = auth.currentUser ?: throw Exception("User not logged in")
+
+            // Get the user's name again so it shows up on the comment
+            val userDoc = db.collection("users").document(currentUser.uid).get().await()
+            val authorName = userDoc.getString("name") ?: "Unknown Student"
+
+            // Point to the sub-collection and generate a new unique ID
+            val commentRef = db.collection("posts").document(postId).collection("comments").document()
+
+            val newComment = com.example.unifiltered.model.Comment(
+                commentId = commentRef.id,
+                authorId = currentUser.uid,
+                authorName = authorName,
+                text = text,
+                timestamp = System.currentTimeMillis()
+            )
+            // Save the comment in the sub-collection
+            commentRef.set(newComment).await()
+
+            // NEW: Instantly add +1 to the parent Post's comment counter!
+            db.collection("posts").document(postId).update("commentsCount", com.google.firebase.firestore.FieldValue.increment(1)).await()
+
             Result.success(true)
         } catch (e: Exception) {
             Result.failure(e)

@@ -6,5 +6,6 @@ data class Post(
     val authorName: String = "",
     val content: String = "",
     val timestamp: Long = System.currentTimeMillis(),
-    val likedBy: List<String> = emptyList() // NEW: A list of User IDs who liked this post
+    val likedBy: List<String> = emptyList(),
+    val commentsCount: Int = 0
 )

@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.unifiltered.R
 import com.example.unifiltered.databinding.ItemPostBinding
 import com.example.unifiltered.model.Post
 
@@ -21,22 +22,24 @@ class PostAdapter(
         fun bind(post: Post) {
             binding.tvAuthorName.text = post.authorName
             binding.tvPostContent.text = post.content
-
-            // Calculate total likes by looking at the size of the list
             binding.tvLikeCount.text = "${post.likedBy.size} Likes"
 
-            // Check if the current user has liked this post
             val isLikedByMe = post.likedBy.contains(currentUserId)
 
-            // Make the like button red if liked, grey if not
+            // Switch the icon and color based on the like status
             if (isLikedByMe) {
                 binding.tvLikeCount.setTextColor(Color.RED)
+                binding.ivLikeIcon.setImageResource(R.drawable.ic_heart_filled)
+                binding.ivLikeIcon.setColorFilter(Color.RED) // Tints the heart red
             } else {
                 binding.tvLikeCount.setTextColor(Color.DKGRAY)
+                binding.ivLikeIcon.setImageResource(R.drawable.ic_heart_outline)
+                binding.ivLikeIcon.setColorFilter(Color.DKGRAY) // Tints the outline grey
             }
-
-            // Listen for clicks on the Like button specifically
-            binding.tvLikeCount.setOnClickListener {
+// Set the comment count text
+            binding.tvCommentCount.text = "${post.commentsCount} Comments"
+            // Listen for clicks on the entire layout (Icon + Text combined)
+            binding.layoutLike.setOnClickListener {
                 onLikeClick(post, isLikedByMe)
             }
 
