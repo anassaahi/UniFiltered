@@ -1,60 +1,115 @@
 package com.example.unifiltered.ui.profile
 
+import android.content.Intent
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.example.unifiltered.R
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.unifiltered.databinding.FragmentProfileBinding
+import com.example.unifiltered.repository.PostRepository
+import com.example.unifiltered.ui.AdminDashboardActivity
+import com.example.unifiltered.ui.auth.LoginActivity
+import com.example.unifiltered.ui.feed.PostAdapter
+import com.example.unifiltered.ui.feed.PostDetailActivity
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [ProfileFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class ProfileFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private var _binding: FragmentProfileBinding? = null
+    private val binding get() = _binding!!
+
+    private lateinit var postAdapter: PostAdapter
+    private val auth = FirebaseAuth.getInstance()
+    private val db = FirebaseFirestore.getInstance()
+    private val postRepo = PostRepository()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_profile, container, false)
+    ): View {
+        _binding = FragmentProfileBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment ProfileFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            ProfileFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val currentUser = auth.currentUser
+        val currentUserId = currentUser?.uid ?: ""
+        val userEmail = currentUser?.email ?: ""
+
+        // 1. Basic UI Setup & God Lock
+        binding.tvProfileEmail.text = userEmail
+        if (userEmail == "anas@gmail.com" || userEmail == "anasfaizsahi6@gmail.com") {
+            binding.btnAdminLair.visibility = View.VISIBLE
+        }
+
+        binding.btnAdminLair.setOnClickListener {
+            startActivity(Intent(requireContext(), AdminDashboardActivity::class.java))
+        }
+
+        // 2. Fetch User's Name from Firestore
+        lifecycleScope.launch {
+            try {
+                val userDoc = db.collection("users").document(currentUserId).get().await()
+                val name = userDoc.getString("name") ?: "Unknown User"
+                binding.tvProfileName.text = name
+            } catch (e: Exception) {
+                binding.tvProfileName.text = "Student"
+            }
+        }
+
+        // 3. Setup RecyclerView for "My Posts"
+        postAdapter = PostAdapter(
+            currentUserId = currentUserId,
+            onPostClick = { clickedPost ->
+                val intent = Intent(requireContext(), PostDetailActivity::class.java).apply {
+                    putExtra("POST_ID", clickedPost.postId)
+                    putExtra("AUTHOR_NAME", clickedPost.authorName)
+                    putExtra("CONTENT", clickedPost.content)
+                    putExtra("LIKES_COUNT", clickedPost.likedBy.size)
+                }
+                startActivity(intent)
+            },
+            onLikeClick = { clickedPost, isCurrentlyLiked ->
+                lifecycleScope.launch {
+                    postRepo.toggleLike(clickedPost.postId, isCurrentlyLiked)
                 }
             }
+        )
+
+        binding.recyclerViewMyPosts.apply {
+            adapter = postAdapter
+            layoutManager = LinearLayoutManager(requireContext())
+        }
+
+        // 4. Load the Posts & Hide Spinner
+        lifecycleScope.launch {
+            postRepo.getMyPosts(currentUserId).collect { posts ->
+                binding.profileProgressBar.visibility = View.GONE
+                postAdapter.submitList(posts)
+            }
+        }
+
+        // 5. Log Out Logic
+        binding.btnLogout.setOnClickListener {
+            auth.signOut()
+            // Clear the activity stack and jump back to Login
+            val intent = Intent(requireContext(), LoginActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            }
+            startActivity(intent)
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

@@ -15,15 +15,24 @@
 
         <TextView
             android:id="@+id/tvAuthorName"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Student Name"
             android:textStyle="bold"
             android:textSize="16sp"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
+            app:layout_constraintStart_toStartOf="parent" />
+        <ImageView
+            android:id="@+id/ivPostOfficialBadge"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_marginStart="4dp"
+            android:src="@android:drawable/ic_menu_myplaces"
+            app:tint="#1DA1F2"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/tvAuthorName"
+            app:layout_constraintStart_toEndOf="@id/tvAuthorName"
+            app:layout_constraintTop_toTopOf="@id/tvAuthorName" />
         <TextView
             android:id="@+id/tvPostContent"
             android:layout_width="0dp"

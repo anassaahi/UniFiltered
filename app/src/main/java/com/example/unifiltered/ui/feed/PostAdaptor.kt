@@ -2,6 +2,7 @@ package com.example.unifiltered.ui.feed
 
 import android.graphics.Color
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -21,6 +22,10 @@ class PostAdapter(
 
         fun bind(post: Post) {
             binding.tvAuthorName.text = post.authorName
+
+            // NEW: Show the blue tick on the post if it was made by an official society!
+            binding.ivPostOfficialBadge.visibility = if (post.isOfficialSocietyPost) View.VISIBLE else View.GONE
+
             binding.tvPostContent.text = post.content
             binding.tvLikeCount.text = "${post.likedBy.size} Likes"
 
@@ -36,8 +41,10 @@ class PostAdapter(
                 binding.ivLikeIcon.setImageResource(R.drawable.ic_heart_outline)
                 binding.ivLikeIcon.setColorFilter(Color.DKGRAY) // Tints the outline grey
             }
-// Set the comment count text
+
+            // Set the comment count text
             binding.tvCommentCount.text = "${post.commentsCount} Comments"
+
             // Listen for clicks on the entire layout (Icon + Text combined)
             binding.layoutLike.setOnClickListener {
                 onLikeClick(post, isLikedByMe)

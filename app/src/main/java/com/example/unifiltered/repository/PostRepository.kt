@@ -9,11 +9,12 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.tasks.await
+import com.google.firebase.firestore.FieldValue
 
-import com.google.firebase.firestore.FieldValue // NEW IMPORT
 class PostRepository {
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance() // Centralized Auth instance
+
     // callbackFlow converts Firebase's real-time listener into a Kotlin Flow
     fun getAllPosts(): Flow<List<Post>> = callbackFlow {
         // Look in the "posts" collection and order by newest first
@@ -35,6 +36,7 @@ class PostRepository {
         // Clean up the listener if the user leaves the screen
         awaitClose { subscription.remove() }
     }
+
     suspend fun toggleLike(postId: String, isCurrentlyLiked: Boolean): Result<Boolean> {
         return try {
             val currentUser = auth.currentUser ?: throw Exception("User not logged in")
@@ -52,35 +54,68 @@ class PostRepository {
             Result.failure(e)
         }
     }
-    suspend fun createPost(content: String): Result<Boolean> {
+
+    suspend fun createPost(
+        content: String,
+        societyId: String? = null,
+        societyName: String? = null
+    ): Result<Boolean> {
         return try {
-            val currentUser = FirebaseAuth.getInstance().currentUser
-            if (currentUser == null) return Result.failure(Exception("User not logged in"))
+            val currentUser = auth.currentUser ?: throw Exception("User not logged in")
 
-            // Fetch the user's name from the 'users' collection so we can attach it to the post
-            val userDoc = db.collection("users").document(currentUser.uid).get().await()
-            val authorName = userDoc.getString("name") ?: "Unknown Student"
+            val finalAuthorName = if (societyName != null) {
+                societyName
+            } else {
+                val userDoc = db.collection("users").document(currentUser.uid).get().await()
+                userDoc.getString("name") ?: "Unknown Student"
+            }
 
-            // Generate a unique ID for the new post
+            // THE FIX: Check raw fields to bypass legacy data typos!
+            var absoluteOfficialStatus = false
+            if (societyId != null) {
+                val socDoc = db.collection("societies").document(societyId).get().await()
+                absoluteOfficialStatus = socDoc.getBoolean("isOfficial")
+                    ?: socDoc.getBoolean("official")
+                            ?: false
+            }
+
             val postId = db.collection("posts").document().id
 
-            val newPost = Post(
+            val newPost = com.example.unifiltered.model.Post(
                 postId = postId,
                 authorId = currentUser.uid,
-                authorName = authorName,
+                authorName = finalAuthorName,
                 content = content,
-                timestamp = System.currentTimeMillis()
-                // We removed likesCount here.
-                // The Post model will automatically set 'likedBy' to an empty list!
+                timestamp = System.currentTimeMillis(),
+                postedAsSocietyId = societyId,
+                isOfficialSocietyPost = absoluteOfficialStatus
             )
 
-            // Save it to Firestore
             db.collection("posts").document(postId).set(newPost).await()
             Result.success(true)
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
+
+    fun getMyPosts(userId: String): Flow<List<Post>> = callbackFlow {
+        val subscription = db.collection("posts")
+            .whereEqualTo("authorId", userId)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    close(error)
+                    return@addSnapshotListener
+                }
+                if (snapshot != null) {
+                    val posts = snapshot.toObjects(Post::class.java)
+                    // Sort locally so the newest posts are at the top
+                    trySend(posts.sortedByDescending { it.timestamp }).isSuccess
+                }
+            }
+        // THE FIX: Removed the long prefix here!
+        awaitClose { subscription.remove() }
+    }
+
     // --- COMMENT FUNCTIONS ---
 
     // 1. Listen for comments on a specific post (Oldest first, like a normal chat)
@@ -125,11 +160,28 @@ class PostRepository {
             commentRef.set(newComment).await()
 
             // NEW: Instantly add +1 to the parent Post's comment counter!
-            db.collection("posts").document(postId).update("commentsCount", com.google.firebase.firestore.FieldValue.increment(1)).await()
+            db.collection("posts").document(postId).update("commentsCount", FieldValue.increment(1)).await()
 
             Result.success(true)
         } catch (e: Exception) {
             Result.failure(e)
         }
+    }
+
+    fun getPostsForSociety(societyId: String): Flow<List<Post>> = callbackFlow {
+        val subscription = db.collection("posts")
+            .whereEqualTo("postedAsSocietyId", societyId)
+            // Note: We sort them locally in the ViewModel to avoid forcing you to create a composite index in Firebase right now!
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    close(error)
+                    return@addSnapshotListener
+                }
+                if (snapshot != null) {
+                    val posts = snapshot.toObjects(Post::class.java)
+                    trySend(posts).isSuccess
+                }
+            }
+        awaitClose { subscription.remove() }
     }
 }

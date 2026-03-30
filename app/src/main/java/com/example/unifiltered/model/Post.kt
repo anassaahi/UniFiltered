@@ -1,5 +1,8 @@
 package com.example.unifiltered.model
 
+import com.google.firebase.firestore.IgnoreExtraProperties
+
+@IgnoreExtraProperties
 data class Post(
     val postId: String = "",
     val authorId: String = "",
@@ -7,5 +10,10 @@ data class Post(
     val content: String = "",
     val timestamp: Long = System.currentTimeMillis(),
     val likedBy: List<String> = emptyList(),
-    val commentsCount: Int = 0
+    val commentsCount: Int = 0,
+
+    val postedAsSocietyId: String? = null,
+
+    @JvmField // THE NUCLEAR FIX: Forces Firebase to use exactly "isOfficialSocietyPost"
+    val isOfficialSocietyPost: Boolean = false
 )
