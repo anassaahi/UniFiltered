@@ -33,9 +33,9 @@ class PostAdapter(
 
             // Switch the icon and color based on the like status
             if (isLikedByMe) {
-                binding.tvLikeCount.setTextColor(Color.RED)
+                binding.tvLikeCount.setTextColor(Color.parseColor("#D97706"))
                 binding.ivLikeIcon.setImageResource(R.drawable.ic_heart_filled)
-                binding.ivLikeIcon.setColorFilter(Color.RED) // Tints the heart red
+                binding.ivLikeIcon.setColorFilter(Color.parseColor("#D97706")) // Tints the heart red
             } else {
                 binding.tvLikeCount.setTextColor(Color.DKGRAY)
                 binding.ivLikeIcon.setImageResource(R.drawable.ic_heart_outline)

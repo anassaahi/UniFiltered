@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F5F5">
+    android:fitsSystemWindows="true"
+    android:background="#0D0D0D">
 
     <ImageButton
         android:id="@+id/btnAdminLair"
@@ -16,13 +17,14 @@
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:tint="@android:color/darker_gray" />
+        app:tint="#F0C060" />
 
     <TextView
         android:id="@+id/tvProfileName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
+        android:textColor="#F0C060"
         android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -35,7 +37,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:textColor="@android:color/darker_gray"
+        android:textColor="#D4882A"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvProfileName"
@@ -48,7 +50,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="Log Out"
-        android:textColor="@android:color/holo_red_dark"
+        android:textColor="#B8620E"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvProfileEmail" />
@@ -58,7 +60,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginTop="16dp"
-        android:background="#E0E0E0"
+        android:background="#4A2E08"
         app:layout_constraintTop_toBottomOf="@id/btnLogout" />
 
     <TextView
@@ -67,6 +69,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:text="My Past Posts"
+        android:textColor="#F0C060"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/divider" />
@@ -75,6 +78,7 @@
         android:id="@+id/profileProgressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:indeterminateTint="#F0C060"
         app:layout_constraintTop_toBottomOf="@id/tvMyPostsLabel"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

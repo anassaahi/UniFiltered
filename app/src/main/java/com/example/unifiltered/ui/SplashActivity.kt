@@ -5,26 +5,40 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
-import com.example.unifiltered.R
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.example.unifiltered.ui.auth.LoginActivity
 import com.google.firebase.auth.FirebaseAuth
 
 class SplashActivity : AppCompatActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_splash)
 
-        // Give the splash screen 1.5 seconds to shine, then check login status
+    // A flag to tell the system when it's safe to dismiss its splash screen
+    private var isReady = false
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        // 1. Install the splash screen BEFORE super.onCreate()
+        val splashScreen = installSplashScreen()
+
+        super.onCreate(savedInstanceState)
+
+        // 2. Do NOT call setContentView()!
+        // We do not want to load activity_splash.xml at all.
+
+        // 3. Tell the system to keep showing its splash screen until isReady becomes true
+        splashScreen.setKeepOnScreenCondition { !isReady }
+
+        // 4. Run your timer and logic
         Handler(Looper.getMainLooper()).postDelayed({
             val currentUser = FirebaseAuth.getInstance().currentUser
+
             if (currentUser != null) {
-                // Already logged in! Go straight to the feed.
                 startActivity(Intent(this, MainActivity::class.java))
             } else {
-                // Not logged in. Go to the login screen.
-                startActivity(Intent(this, LoginActivity::class.java)) // Change to your actual Login Activity name if different
+                startActivity(Intent(this, LoginActivity::class.java))
             }
-            finish() // Destroy the splash screen so the back button doesn't return to it
+
+            // Tell the system we are done, and close this activity
+            isReady = true
+            finish()
         }, 1500)
     }
 }

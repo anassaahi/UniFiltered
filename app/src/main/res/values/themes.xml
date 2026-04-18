@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <style name="Theme.Ember.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#0D0D0D</item>
 
-    <style name="Theme.UniFiltered" parent="android:Theme.Material.Light.NoActionBar" />
+        <item name="windowSplashScreenAnimatedIcon">@drawable/logo</item>
+
+        <item name="postSplashScreenTheme">@style/Theme.MaterialComponents.DayNight.NoActionBar</item>
+    </style>
 </resources>

@@ -5,6 +5,9 @@
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
     android:layout_marginVertical="8dp"
+    app:cardBackgroundColor="#0D0D0D"
+    app:strokeColor="#4A2E08"
+    app:strokeWidth="1dp"
     app:cardCornerRadius="12dp"
     app:cardElevation="2dp">
 
@@ -18,40 +21,44 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Student Name"
-            android:textStyle="bold"
+            android:textColor="#F0C060"
             android:textSize="16sp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <ImageView
             android:id="@+id/ivPostOfficialBadge"
             android:layout_width="16dp"
             android:layout_height="16dp"
             android:layout_marginStart="4dp"
             android:src="@android:drawable/ic_menu_myplaces"
-            app:tint="#1DA1F2"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@id/tvAuthorName"
             app:layout_constraintStart_toEndOf="@id/tvAuthorName"
-            app:layout_constraintTop_toTopOf="@id/tvAuthorName" />
+            app:layout_constraintTop_toTopOf="@id/tvAuthorName"
+            app:tint="#B8620E"/>
+
         <TextView
             android:id="@+id/tvPostContent"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="This is what the student is posting about. It can be multiple lines long!"
             android:layout_marginTop="12dp"
+            android:text="This is what the student is posting about. It can be multiple lines long!"
+            android:textColor="#D4882A"
             android:textSize="15sp"
-            app:layout_constraintTop_toBottomOf="@id/tvAuthorName"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/tvAuthorName" />
 
         <LinearLayout
             android:id="@+id/actionBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
             android:layout_marginTop="16dp"
-            app:layout_constraintTop_toBottomOf="@id/tvPostContent"
-            app:layout_constraintStart_toStartOf="parent">
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvPostContent">
 
             <LinearLayout
                 android:id="@+id/layoutLike"
@@ -66,7 +73,7 @@
                     android:layout_width="22dp"
                     android:layout_height="22dp"
                     android:src="@drawable/ic_heart_outline"
-                    app:tint="@android:color/darker_gray" />
+                    app:tint="#B8620E" />
 
                 <TextView
                     android:id="@+id/tvLikeCount"
@@ -74,23 +81,24 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
                     android:text="0 Likes"
-                    android:textStyle="bold"
-                    android:textColor="@android:color/darker_gray" />
+                    android:textColor="#D4882A"
+                    android:textStyle="bold" />
             </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/layoutComment"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
                 android:layout_marginStart="16dp"
+                android:gravity="center_vertical"
                 android:paddingVertical="4dp">
 
                 <ImageView
+                    android:id="@+id/ivCommentIcon"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:src="@drawable/ic_comment_outline"
-                    app:tint="@android:color/darker_gray" />
+                    app:tint="#B8620E" />
 
                 <TextView
                     android:id="@+id/tvCommentCount"
@@ -98,8 +106,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
                     android:text="0 Comments"
-                    android:textStyle="bold"
-                    android:textColor="@android:color/darker_gray" />
+                    android:textColor="#D4882A"
+                    android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
 
