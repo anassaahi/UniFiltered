@@ -39,7 +39,7 @@ class PostBroadcastReceiver : BroadcastReceiver() {
         val builder = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(android.R.drawable.ic_dialog_info) // Using a system icon for reliability
             .setContentTitle("UniFiltered: New Post")
-            .setContentText("Hey dorky $authorName just shared a new post!")
+            .setContentText("Hey! $authorName just shared a new post!")
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setAutoCancel(true)
 
