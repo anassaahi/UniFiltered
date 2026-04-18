@@ -1,5 +1,6 @@
 package com.example.unifiltered.repository
 
+import android.net.Uri
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.example.unifiltered.model.Post
@@ -8,12 +9,14 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
 import com.google.firebase.firestore.FieldValue
 
 class PostRepository {
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance() // Centralized Auth instance
+    private val storage = FirebaseStorage.getInstance() // Firebase Storage instance
 
     // callbackFlow converts Firebase's real-time listener into a Kotlin Flow
     fun getAllPosts(): Flow<List<Post>> = callbackFlow {
@@ -58,7 +61,8 @@ class PostRepository {
     suspend fun createPost(
         content: String,
         societyId: String? = null,
-        societyName: String? = null
+        societyName: String? = null,
+        imageUri: Uri? = null
     ): Result<Boolean> {
         return try {
             val currentUser = auth.currentUser ?: throw Exception("User not logged in")
@@ -81,12 +85,23 @@ class PostRepository {
 
             val postId = db.collection("posts").document().id
 
+            // NEW: Upload image if provided
+            var imageUrl = ""
+            if (imageUri != null) {
+                val fileName = "post_images/${currentUser.uid}_${postId}_${System.currentTimeMillis()}.jpg"
+                val storageRef = storage.reference.child(fileName)
+                
+                storageRef.putFile(imageUri).await()
+                imageUrl = storageRef.downloadUrl.await().toString()
+            }
+
             val newPost = com.example.unifiltered.model.Post(
                 postId = postId,
                 authorId = currentUser.uid,
                 authorName = finalAuthorName,
                 content = content,
                 timestamp = System.currentTimeMillis(),
+                imageUrl = imageUrl,
                 postedAsSocietyId = societyId,
                 isOfficialSocietyPost = absoluteOfficialStatus
             )

@@ -11,6 +11,7 @@ data class Post(
     val timestamp: Long = System.currentTimeMillis(),
     val likedBy: List<String> = emptyList(),
     val commentsCount: Int = 0,
+    val imageUrl: String = "",
 
     val postedAsSocietyId: String? = null,
 

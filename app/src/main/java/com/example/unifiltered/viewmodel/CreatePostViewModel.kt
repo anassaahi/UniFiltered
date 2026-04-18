@@ -1,5 +1,6 @@
 package com.example.unifiltered.viewmodel
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.unifiltered.model.Society
@@ -28,15 +29,16 @@ class CreatePostViewModel : ViewModel() {
         }
     }
 
-    fun createPost(content: String, selectedSociety: Society? = null) {
+    fun createPost(content: String, selectedSociety: Society? = null, imageUri: Uri? = null) {
         viewModelScope.launch {
             _postState.value = CreatePostState.Loading
 
-            // THE FIX: We removed the 'isOfficial' parameter here because the Repository handles it now!
+            // UPDATED: Pass the imageUri to the repository
             val result = repository.createPost(
                 content = content,
                 societyId = selectedSociety?.societyId,
-                societyName = selectedSociety?.name
+                societyName = selectedSociety?.name,
+                imageUri = imageUri
             )
 
             if (result.isSuccess) {

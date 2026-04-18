@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
 import com.example.unifiltered.R
 import com.example.unifiltered.databinding.ItemPostBinding
 import com.example.unifiltered.model.Post
@@ -44,6 +45,16 @@ class PostAdapter(
 
             // Set the comment count text
             binding.tvCommentCount.text = "${post.commentsCount} Comments"
+
+            // NEW: Load and display post image if exists
+            if (post.imageUrl.isNotEmpty()) {
+                binding.ivPostImage.load(post.imageUrl) {
+                    crossfade(true)
+                }
+                binding.ivPostImage.visibility = View.VISIBLE
+            } else {
+                binding.ivPostImage.visibility = View.GONE
+            }
 
             // Listen for clicks on the entire layout (Icon + Text combined)
             binding.layoutLike.setOnClickListener {

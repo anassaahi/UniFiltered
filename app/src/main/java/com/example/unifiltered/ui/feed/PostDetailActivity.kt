@@ -1,14 +1,18 @@
 package com.example.unifiltered.ui.feed
 
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import coil.load
 import com.example.unifiltered.databinding.ActivityPostDetailBinding
 import com.example.unifiltered.viewmodel.PostDetailViewModel
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 class PostDetailActivity : AppCompatActivity() {
 
@@ -16,6 +20,7 @@ class PostDetailActivity : AppCompatActivity() {
     private val viewModel: PostDetailViewModel by viewModels()
     private lateinit var commentAdapter: CommentAdapter
     private var currentPostId: String = ""
+    private val db = FirebaseFirestore.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,11 +32,36 @@ class PostDetailActivity : AppCompatActivity() {
         val authorName = intent.getStringExtra("AUTHOR_NAME") ?: "Unknown"
         val content = intent.getStringExtra("CONTENT") ?: ""
         val likesCount = intent.getIntExtra("LIKES_COUNT", 0)
+        val imageUrl = intent.getStringExtra("IMAGE_URL") ?: ""
 
         // 2. Set the Original Post UI
         binding.tvDetailAuthorName.text = authorName
         binding.tvDetailContent.text = content
         binding.tvDetailLikes.text = "$likesCount Likes"
+
+        // NEW: Load image if available
+        if (imageUrl.isNotEmpty()) {
+            binding.ivDetailPostImage.load(imageUrl) {
+                crossfade(true)
+            }
+            binding.ivDetailPostImage.visibility = View.VISIBLE
+        } else if (currentPostId.isNotEmpty()) {
+            // Fetch image from Firestore if not passed in intent
+            lifecycleScope.launch {
+                try {
+                    val postDoc = db.collection("posts").document(currentPostId).get().await()
+                    val fetchedImageUrl = postDoc.getString("imageUrl") ?: ""
+                    if (fetchedImageUrl.isNotEmpty()) {
+                        binding.ivDetailPostImage.load(fetchedImageUrl) {
+                            crossfade(true)
+                        }
+                        binding.ivDetailPostImage.visibility = View.VISIBLE
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
 
         binding.btnBack.setOnClickListener { finish() }
 

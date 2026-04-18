@@ -79,6 +79,19 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvDetailAuthorName" />
 
+            <!-- Post Detail Image -->
+            <ImageView
+                android:id="@+id/ivDetailPostImage"
+                android:layout_width="0dp"
+                android:layout_height="300dp"
+                android:layout_marginTop="12dp"
+                android:scaleType="centerCrop"
+                android:visibility="gone"
+                android:contentDescription="Post Image"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvDetailContent" />
+
             <TextView
                 android:id="@+id/tvDetailLikes"
                 android:layout_width="wrap_content"
@@ -87,7 +100,7 @@
                 android:textColor="#B8620E"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvDetailContent" />
+                app:layout_constraintTop_toBottomOf="@id/ivDetailPostImage" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
 

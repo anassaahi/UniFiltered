@@ -143,6 +143,7 @@ class ProfileFragment : Fragment() {
                     putExtra("AUTHOR_NAME", clickedPost.authorName)
                     putExtra("CONTENT", clickedPost.content)
                     putExtra("LIKES_COUNT", clickedPost.likedBy.size)
+                    putExtra("IMAGE_URL", clickedPost.imageUrl) // NEW: Pass image URL
                 }
                 startActivity(intent)
             },
