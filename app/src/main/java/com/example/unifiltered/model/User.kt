@@ -5,5 +5,6 @@ data class User(
     val name: String = "",
     val email: String = "",
     val role: String = "student",
-    val followedSocieties: List<String> = emptyList()
+    val followedSocieties: List<String> = emptyList(),
+    val profileImageUrl: String = ""
 )
