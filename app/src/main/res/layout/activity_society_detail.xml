@@ -74,9 +74,8 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginStart="8dp"
-                android:src="@android:drawable/ic_menu_myplaces"
+                android:src="@drawable/ic_verified"
                 android:visibility="gone"
-                app:tint="#B8620E"
                 app:layout_constraintBottom_toBottomOf="@id/tvDetailSocietyName"
                 app:layout_constraintStart_toEndOf="@id/tvDetailSocietyName"
                 app:layout_constraintTop_toTopOf="@id/tvDetailSocietyName" />

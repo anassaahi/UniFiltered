@@ -30,11 +30,10 @@
 
         <ImageView
             android:id="@+id/ivOfficialBadge"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_marginStart="8dp"
-            android:src="@android:drawable/ic_menu_myplaces"
-            app:tint="#B8620E"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_marginStart="4dp"
+            android:src="@drawable/ic_verified"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@id/tvSocietyName"
             app:layout_constraintStart_toEndOf="@id/tvSocietyName"

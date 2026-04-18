@@ -32,12 +32,11 @@
             android:layout_width="16dp"
             android:layout_height="16dp"
             android:layout_marginStart="4dp"
-            android:src="@android:drawable/ic_menu_myplaces"
+            android:src="@drawable/ic_verified"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@id/tvAuthorName"
             app:layout_constraintStart_toEndOf="@id/tvAuthorName"
-            app:layout_constraintTop_toTopOf="@id/tvAuthorName"
-            app:tint="#B8620E"/>
+            app:layout_constraintTop_toTopOf="@id/tvAuthorName" />
 
         <TextView
             android:id="@+id/tvPostContent"

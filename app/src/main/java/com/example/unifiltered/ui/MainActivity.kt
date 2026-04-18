@@ -1,14 +1,20 @@
 package com.example.unifiltered.ui
 
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.example.unifiltered.R
 import com.example.unifiltered.databinding.ActivityMainBinding
-import com.example.unifiltered.utils.NetworkMonitor
+import com.example.unifiltered.receiver.PostListenerService
 import com.google.firebase.FirebaseApp
 import com.google.firebase.appcheck.FirebaseAppCheck
 import com.google.firebase.appcheck.debug.DebugAppCheckProviderFactory
@@ -16,42 +22,53 @@ import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
-    // Added the missing 'var' keyword here!
     private lateinit var binding: ActivityMainBinding
+
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            startPostService()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Setup ViewBinding
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Find the NavController (the engine that drives navigation)
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         val navController = navHostFragment.navController
+        
         FirebaseApp.initializeApp(this)
         val firebaseAppCheck = FirebaseAppCheck.getInstance()
         firebaseAppCheck.installAppCheckProviderFactory(
             DebugAppCheckProviderFactory.getInstance()
         )
-        // Connect the BottomNavigationView to the NavController
+        
         binding.bottomNavigationView.setupWithNavController(navController)
 
-        val networkMonitor = NetworkMonitor(this)
-        val offlineBanner = findViewById<View>(R.id.tvOfflineBanner) // Or use binding.tvOfflineBanner
+        checkNotificationPermission()
+    }
 
-        // Listen to the network in the background
-        lifecycleScope.launch {
-            networkMonitor.isConnected.collect { isOnline ->
-                if (isOnline) {
-                    // Hide the red banner
-                    offlineBanner.visibility = View.GONE
-                } else {
-                    // Show the red banner
-                    offlineBanner.visibility = View.VISIBLE
-                }
+    private fun checkNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) ==
+                PackageManager.PERMISSION_GRANTED
+            ) {
+                startPostService()
+            } else {
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
+        } else {
+            startPostService()
         }
+    }
+
+    private fun startPostService() {
+        val serviceIntent = Intent(this, PostListenerService::class.java)
+        startService(serviceIntent)
     }
 }
