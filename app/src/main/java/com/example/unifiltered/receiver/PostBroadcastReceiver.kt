@@ -2,12 +2,14 @@ package com.example.unifiltered.receiver
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.example.unifiltered.R
+import com.example.unifiltered.ui.MainActivity // Make sure this import points to your main app screen
 
 class PostBroadcastReceiver : BroadcastReceiver() {
 
@@ -35,13 +37,31 @@ class PostBroadcastReceiver : BroadcastReceiver() {
             notificationManager.createNotificationChannel(channel)
         }
 
+        // ==========================================
+        // NEW: Create the Intent to open the app
+        // ==========================================
+        val tapIntent = Intent(context, MainActivity::class.java).apply {
+            // These flags ensure that tapping the notification doesn't create duplicate instances of your app
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+
+        // Wrap it in a PendingIntent.
+        // FLAG_IMMUTABLE is strictly required on modern Android versions (Android 12+) for security.
+        val pendingIntent: PendingIntent = PendingIntent.getActivity(
+            context,
+            0,
+            tapIntent,
+            PendingIntent.FLAG_IMMUTABLE
+        )
+
         // Build the notification
         val builder = NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(android.R.drawable.ic_dialog_info) // Using a system icon for reliability
+            .setSmallIcon(android.R.drawable.ic_dialog_info) // Consider changing this to your @drawable/ic_launcher_foreground eventually!
             .setContentTitle("UniFiltered: New Post")
             .setContentText("Hey! $authorName just shared a new post!")
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setAutoCancel(true)
+            .setContentIntent(pendingIntent) // <--- THIS ATTACHES THE ACTION
+            .setAutoCancel(true) // This makes the notification dismiss itself after it is tapped
 
         // Show the notification
         notificationManager.notify(System.currentTimeMillis().toInt(), builder.build())
