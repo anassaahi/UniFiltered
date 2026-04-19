@@ -151,6 +151,9 @@ class ProfileFragment : Fragment() {
                 lifecycleScope.launch {
                     postRepo.toggleLike(clickedPost.postId, isCurrentlyLiked)
                 }
+            },
+            onDeleteClick = { postToDelete ->
+                showDeleteConfirmationDialog(postToDelete)
             }
         )
 
@@ -176,6 +179,24 @@ class ProfileFragment : Fragment() {
             }
             startActivity(intent)
         }
+    }
+
+    private fun showDeleteConfirmationDialog(post: com.example.unifiltered.model.Post) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Delete Post")
+            .setMessage("Are you sure you want to delete this post? This action cannot be undone.")
+            .setPositiveButton("Delete") { _, _ ->
+                lifecycleScope.launch {
+                    val result = postRepo.deletePost(post.postId, post.imageUrl)
+                    if (result.isSuccess) {
+                        Toast.makeText(requireContext(), "Post deleted", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(requireContext(), "Failed to delete: ${result.exceptionOrNull()?.message}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private fun setupProfileImageUpload(currentUserId: String) {

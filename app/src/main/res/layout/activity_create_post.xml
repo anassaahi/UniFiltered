@@ -110,6 +110,7 @@
         android:visibility="gone"
         android:background="@drawable/bg_button_ember"
         android:textColor="#0D0D0D"
+        app:backgroundTint="@null"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/ivImagePreview" />

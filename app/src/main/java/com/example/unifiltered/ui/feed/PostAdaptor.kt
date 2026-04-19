@@ -16,7 +16,8 @@ import com.example.unifiltered.model.Post
 class PostAdapter(
     private val currentUserId: String,
     private val onPostClick: (Post) -> Unit,
-    private val onLikeClick: (Post, Boolean) -> Unit
+    private val onLikeClick: (Post, Boolean) -> Unit,
+    private val onDeleteClick: ((Post) -> Unit)? = null // Optional callback for deletion
 ) : ListAdapter<Post, PostAdapter.PostViewHolder>(PostDiffCallback()) {
 
     inner class PostViewHolder(private val binding: ItemPostBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -54,6 +55,16 @@ class PostAdapter(
                 binding.ivPostImage.visibility = View.VISIBLE
             } else {
                 binding.ivPostImage.visibility = View.GONE
+            }
+
+            // DELETE BUTTON: Only show if this post belongs to the current user AND a listener is provided
+            if (post.authorId == currentUserId && onDeleteClick != null) {
+                binding.ivDeletePost.visibility = View.VISIBLE
+                binding.ivDeletePost.setOnClickListener {
+                    onDeleteClick.invoke(post)
+                }
+            } else {
+                binding.ivDeletePost.visibility = View.GONE
             }
 
             // Listen for clicks on the entire layout (Icon + Text combined)

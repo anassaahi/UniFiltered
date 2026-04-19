@@ -199,4 +199,35 @@ class PostRepository {
             }
         awaitClose { subscription.remove() }
     }
+
+    suspend fun deletePost(postId: String, imageUrl: String?): Result<Boolean> {
+        return try {
+            val currentUser = auth.currentUser ?: throw Exception("User not logged in")
+            
+            // 1. Verify ownership (optional but recommended)
+            val postDoc = db.collection("posts").document(postId).get().await()
+            val authorId = postDoc.getString("authorId")
+            
+            if (authorId != currentUser.uid) {
+                throw Exception("You can only delete your own posts")
+            }
+
+            // 2. Delete image from Storage if it exists
+            if (!imageUrl.isNullOrEmpty()) {
+                try {
+                    storage.getReferenceFromUrl(imageUrl).delete().await()
+                } catch (e: Exception) {
+                    // Log error but continue deleting the post from Firestore
+                    println("Error deleting image: ${e.message}")
+                }
+            }
+
+            // 3. Delete the post from Firestore
+            db.collection("posts").document(postId).delete().await()
+            
+            Result.success(true)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }
