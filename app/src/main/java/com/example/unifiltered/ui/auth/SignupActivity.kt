@@ -51,6 +51,7 @@ class SignupActivity : AppCompatActivity() {
                         startActivity(Intent(this@SignupActivity, MainActivity::class.java))
                         finish()
                     }
+
                     is AuthState.Error -> {
                         binding.progressBar.visibility = View.GONE
                         Toast.makeText(this@SignupActivity, state.message, Toast.LENGTH_LONG).show()
