@@ -3,14 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0D0D0D">
+    android:background="@color/zinc_black">
 
     <TextView
         android:id="@+id/tvComingSoon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Coming Soon"
-        android:textColor="#D4882A"
+        android:textColor="@color/muted_gray"
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#0D0D0D"
+    android:background="@color/zinc_black"
     android:paddingStart="16dp"
     android:paddingEnd="16dp">
     <LinearLayout
@@ -29,7 +29,7 @@
             android:id="@+id/tvCommentAuthor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#F0C060"
+            android:textColor="@color/off_white"
             android:textSize="14sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
@@ -41,7 +41,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:textColor="#D4882A"
+            android:textColor="@color/off_white"
             android:textSize="14sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -54,7 +54,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:text="Reply"
-            android:textColor="#B8620E"
+            android:textColor="@color/cyber_lime"
             android:textSize="12sp"
             android:textStyle="bold"
             android:paddingVertical="4dp"
@@ -66,7 +66,7 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_marginTop="8dp"
-            android:background="#4A2E08"
+            android:background="@color/dark_graphite"
             app:layout_constraintTop_toBottomOf="@id/tvReplyButton" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

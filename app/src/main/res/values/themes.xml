@@ -1,10 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="Theme.Ember.Splash" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">#0D0D0D</item>
-
+        <item name="windowSplashScreenBackground">@color/zinc_black</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/logo</item>
-
         <item name="postSplashScreenTheme">@style/Theme.MaterialComponents.DayNight.NoActionBar</item>
+    </style>
+
+    <style name="Theme.UniFiltered" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/cyber_lime</item>
+        <item name="colorPrimaryVariant">@color/cyber_lime</item>
+        <item name="colorOnPrimary">@color/zinc_black</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/dark_graphite</item>
+        <item name="colorSecondaryVariant">@color/dark_graphite</item>
+        <item name="colorOnSecondary">@color/off_white</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor">@color/zinc_black</item>
+        <!-- Background color -->
+        <item name="android:windowBackground">@color/zinc_black</item>
     </style>
 </resources>

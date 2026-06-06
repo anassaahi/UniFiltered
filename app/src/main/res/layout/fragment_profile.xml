@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0D0D0D"
+    android:background="@color/zinc_black"
     android:fitsSystemWindows="true">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -27,7 +27,7 @@
                     android:id="@+id/ivCoverBanner"
                     android:layout_width="match_parent"
                     android:layout_height="140dp"
-                    android:background="#1A1208"
+                    android:background="@color/zinc_gray"
                     android:scaleType="centerCrop"
                     app:layout_constraintTop_toTopOf="parent" />
 
@@ -37,12 +37,12 @@
                     android:layout_height="48dp"
                     android:layout_margin="12dp"
                     android:background="@drawable/bg_profile_circle"
-                    android:backgroundTint="#0D0D0D"
+                    android:backgroundTint="@color/zinc_black"
                     android:src="@android:drawable/ic_menu_manage"
                     android:visibility="gone"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:tint="#F0C060" />
+                    app:tint="@color/cyber_lime" />
 
                 <FrameLayout
                     android:id="@+id/profileImageContainer"
@@ -58,6 +58,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="@drawable/bg_profile_circle"
+                        android:backgroundTint="@color/dark_graphite"
                         android:scaleType="centerCrop"
                         tools:src="@android:drawable/ic_dialog_info" />
 
@@ -67,10 +68,10 @@
                         android:layout_height="32dp"
                         android:layout_gravity="bottom|end"
                         android:background="@drawable/bg_profile_circle"
-                        android:backgroundTint="#D97706"
+                        android:backgroundTint="@color/cyber_lime"
                         android:contentDescription="Upload Image"
                         android:src="@android:drawable/ic_menu_camera"
-                        app:tint="#0D0D0D" />
+                        app:tint="@color/zinc_black" />
                 </FrameLayout>
 
                 <LinearLayout
@@ -91,9 +92,9 @@
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="8dp"
                         android:text="Edit Profile"
-                        android:textColor="#F0C060"
+                        android:textColor="@color/cyber_lime"
                         app:cornerRadius="20dp"
-                        app:strokeColor="#D97706" />
+                        app:strokeColor="@color/cyber_lime" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnLogout"
@@ -101,9 +102,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Log Out"
-                        android:textColor="#B8620E"
+                        android:textColor="@color/muted_gray"
                         app:cornerRadius="20dp"
-                        app:strokeColor="#4A2E08" />
+                        app:strokeColor="@color/dark_graphite" />
                 </LinearLayout>
                 <TextView
                     android:id="@+id/tvProfileName"
@@ -111,7 +112,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="8dp"
-                    android:textColor="#F0C060"
+                    android:textColor="@color/off_white"
                     android:textSize="22sp"
                     android:textStyle="bold"
                     app:layout_constraintStart_toStartOf="parent"
@@ -124,7 +125,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:background="@drawable/bg_profile_circle"
-                    android:backgroundTint="#1A1208"
+                    android:backgroundTint="@color/zinc_gray"
                     android:paddingHorizontal="12dp"
                     android:paddingVertical="4dp"
                     app:layout_constraintBottom_toBottomOf="@id/tvProfileName"
@@ -136,7 +137,7 @@
                         android:layout_width="14dp"
                         android:layout_height="14dp"
                         android:background="@drawable/bg_profile_circle"
-                        android:backgroundTint="#D97706"
+                        android:backgroundTint="@color/cyber_lime"
                         app:layout_constraintBottom_toBottomOf="@id/ivCredFlame"
                         app:layout_constraintEnd_toEndOf="@id/ivCredFlame"
                         app:layout_constraintStart_toStartOf="@id/ivCredFlame"
@@ -156,7 +157,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="6dp"
-                        android:textColor="#F0C060"
+                        android:textColor="@color/off_white"
                         android:textSize="14sp"
                         android:textStyle="bold"
                         app:layout_constraintBottom_toBottomOf="parent"
@@ -177,9 +178,9 @@
                         android:id="@+id/chipDepartment"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="#F0C060"
-                        app:chipBackgroundColor="#1A1208"
-                        app:chipStrokeColor="#4A2E08"
+                        android:textColor="@color/off_white"
+                        app:chipBackgroundColor="@color/zinc_gray"
+                        app:chipStrokeColor="@color/dark_graphite"
                         app:chipStrokeWidth="1dp"
                         tools:text="BS Computer Science" />
 
@@ -187,9 +188,9 @@
                         android:id="@+id/chipBatch"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="#F0C060"
-                        app:chipBackgroundColor="#1A1208"
-                        app:chipStrokeColor="#4A2E08"
+                        android:textColor="@color/off_white"
+                        app:chipBackgroundColor="@color/zinc_gray"
+                        app:chipStrokeColor="@color/dark_graphite"
                         app:chipStrokeWidth="1dp"
                         tools:text="Class of '26" />
                 </com.google.android.material.chip.ChipGroup>
@@ -200,7 +201,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="16dp"
                     android:layout_marginTop="12dp"
-                    android:textColor="#D4882A"
+                    android:textColor="@color/muted_gray"
                     android:textSize="14sp"
                     app:layout_constraintTop_toBottomOf="@id/chipGroupFlairs"
                     tools:text="Building the future of campus connectivity. Code, coffee, and late-night library runs." />
@@ -212,10 +213,10 @@
             android:id="@+id/profileTabLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#1A1208"
-            app:tabIndicatorColor="#D97706"
-            app:tabSelectedTextColor="#F0C060"
-            app:tabTextColor="#D4882A" />
+            android:background="@color/zinc_gray"
+            app:tabIndicatorColor="@color/cyber_lime"
+            app:tabSelectedTextColor="@color/cyber_lime"
+            app:tabTextColor="@color/muted_gray" />
 
     </com.google.android.material.appbar.AppBarLayout>
 

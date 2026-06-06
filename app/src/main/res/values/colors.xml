@@ -1,10 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
+    <!-- Industrial Tech Palette -->
+    <color name="zinc_black">#09090B</color>
+    <color name="zinc_gray">#18181B</color>
+    <color name="cyber_lime">#D9F99D</color>
+    <color name="dark_graphite">#27272A</color>
+    <color name="off_white">#F4F4F5</color>
+    <color name="muted_gray">#71717A</color>
+
+    <!-- UI Mappings -->
+    <color name="primary">@color/cyber_lime</color>
+    <color name="background">@color/zinc_black</color>
+    <color name="surface">@color/zinc_gray</color>
+    <color name="on_surface">@color/off_white</color>
+    <color name="divider">@color/dark_graphite</color>
+
+    <!-- Legacy/System -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 </resources>

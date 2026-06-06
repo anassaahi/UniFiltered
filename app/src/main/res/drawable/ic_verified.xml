@@ -5,7 +5,7 @@
     android:viewportHeight="24">
     <!-- The star/rosette shape -->
     <path
-        android:fillColor="#B8620E"
+        android:fillColor="@color/cyber_lime"
         android:pathData="M12,2L14.41,4.41L17.78,4L18.41,7.32L21.5,8.8L20.32,12L21.5,15.2L18.41,16.68L17.78,20L14.41,19.59L12,22L9.59,19.59L6.22,20L5.59,16.68L2.5,15.2L3.68,12L2.5,8.8L5.59,7.32L6.22,4L9.59,4.41L12,2Z" />
     <!-- The checkmark inside (White) -->
     <path

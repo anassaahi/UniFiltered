@@ -6,8 +6,8 @@
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
     android:layout_marginVertical="8dp"
-    app:cardBackgroundColor="#1A1208"
-    app:strokeColor="#4A2E08"
+    app:cardBackgroundColor="@color/zinc_gray"
+    app:strokeColor="@color/dark_graphite"
     app:strokeWidth="1dp"
     app:cardCornerRadius="12dp"
     app:cardElevation="2dp">
@@ -22,7 +22,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Student Name"
-            android:textColor="#F0C060"
+            android:textColor="@color/off_white"
             android:textSize="16sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
@@ -57,7 +57,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:text="This is what the student is posting about. It can be multiple lines long!"
-            android:textColor="#D4882A"
+            android:textColor="@color/off_white"
             android:textSize="15sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -96,7 +96,7 @@
                     android:layout_width="22dp"
                     android:layout_height="22dp"
                     android:src="@drawable/ic_heart_outline"
-                    app:tint="#B8620E" />
+                    app:tint="@color/cyber_lime" />
 
                 <TextView
                     android:id="@+id/tvLikeCount"
@@ -104,7 +104,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
                     android:text="0 Likes"
-                    android:textColor="#D4882A"
+                    android:textColor="@color/off_white"
                     android:textStyle="bold" />
             </LinearLayout>
 
@@ -121,7 +121,7 @@
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:src="@drawable/ic_comment_outline"
-                    app:tint="#B8620E" />
+                    app:tint="@color/cyber_lime" />
 
                 <TextView
                     android:id="@+id/tvCommentCount"
@@ -129,7 +129,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
                     android:text="0 Comments"
-                    android:textColor="#D4882A"
+                    android:textColor="@color/off_white"
                     android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>

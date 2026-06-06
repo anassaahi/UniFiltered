@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0D0D0D"
+    android:background="@color/zinc_black"
     android:fillViewport="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -28,7 +28,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="28dp"
             android:text="Full Name"
-            android:textColor="#F0C060"
+            android:textColor="@color/off_white"
             android:textSize="12sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
@@ -43,8 +43,8 @@
             android:hint="Your name"
             android:inputType="textPersonName"
             android:paddingHorizontal="16dp"
-            android:textColor="#F0C060"
-            android:textColorHint="#D4882A"
+            android:textColor="@color/off_white"
+            android:textColorHint="@color/muted_gray"
             app:layout_constraintTop_toBottomOf="@id/lblUsername" />
 
         <TextView
@@ -53,7 +53,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="Email"
-            android:textColor="#F0C060"
+            android:textColor="@color/off_white"
             android:textSize="12sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
@@ -68,8 +68,8 @@
             android:hint="university@edu.pk"
             android:inputType="textEmailAddress"
             android:paddingHorizontal="16dp"
-            android:textColor="#F0C060"
-            android:textColorHint="#D4882A"
+            android:textColor="@color/off_white"
+            android:textColorHint="@color/muted_gray"
             app:layout_constraintTop_toBottomOf="@id/lblEmail" />
 
         <TextView
@@ -78,7 +78,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="Password"
-            android:textColor="#F0C060"
+            android:textColor="@color/off_white"
             android:textSize="12sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
@@ -93,8 +93,8 @@
             android:hint="••••••••"
             android:inputType="textPassword"
             android:paddingHorizontal="16dp"
-            android:textColor="#F0C060"
-            android:textColorHint="#D4882A"
+            android:textColor="@color/off_white"
+            android:textColorHint="@color/muted_gray"
             app:layout_constraintTop_toBottomOf="@id/lblPassword" />
 
         <RadioGroup
@@ -109,10 +109,10 @@
                 android:id="@+id/radioStudent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:buttonTint="#B8620E"
+                android:buttonTint="@color/cyber_lime"
                 android:checked="true"
                 android:text="Student"
-                android:textColor="#D4882A"
+                android:textColor="@color/off_white"
                 android:textSize="12sp" />
 
             <RadioButton
@@ -120,9 +120,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:buttonTint="#B8620E"
+                android:buttonTint="@color/cyber_lime"
                 android:text="Society Admin"
-                android:textColor="#D4882A"
+                android:textColor="@color/off_white"
                 android:textSize="12sp" />
         </RadioGroup>
 
@@ -134,7 +134,7 @@
             android:background="@drawable/bg_button_ember"
             android:text="Sign Up"
             android:textAllCaps="false"
-            android:textColor="#0D0D0D"
+            android:textColor="@color/zinc_black"
             android:textSize="16sp"
             android:textStyle="bold"
             app:backgroundTint="@null"
@@ -146,7 +146,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="Already have an account? Log In"
-            android:textColor="#D4882A"
+            android:textColor="@color/cyber_lime"
             android:textSize="14sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -159,7 +159,7 @@
             android:layout_marginTop="32dp"
             android:gravity="center"
             android:text="By continuing, you agree to our Terms of Service and Privacy Policy"
-            android:textColor="#D4882A"
+            android:textColor="@color/muted_gray"
             android:textSize="11sp"
             app:layout_constraintTop_toBottomOf="@id/tvLoginLink" />
 
@@ -168,7 +168,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="gone"
-            android:indeterminateTint="#F0C060"
+            android:indeterminateTint="@color/cyber_lime"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

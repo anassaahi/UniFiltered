@@ -1,10 +1,8 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="108dp"
-    android:height="108dp"
+    android:width="200dp"
+    android:height="200dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-
-    <!-- Cyber Lime color: #D9F99D -->
 
     <!-- Left Person -->
     <path
@@ -22,7 +20,7 @@
         android:fillColor="#D9F99D"
         android:pathData="M76,58c3.3,0,6-2.7,6-6s-2.7-6-6-6s-6,2.7-6,6S72.7,58,76,58z" />
 
-    <!-- Middle Person (slightly larger) -->
+    <!-- Middle Person -->
     <path
         android:fillColor="#D9F99D"
         android:pathData="M54,58c-5.5,0-10,4.5-10,10v6h20v-6C64,62.5,59.5,58,54,58z" />
@@ -35,21 +33,18 @@
         android:fillColor="#D9F99D"
         android:pathData="M54,18c-7.7,0-14,5.4-14,12c0,3.5,1.8,6.6,4.6,8.8l-1.6,4.2l5.4-2.4c1.8,0.9,3.7,1.4,5.6,1.4c7.7,0,14-5.4,14-12S61.7,18,54,18z" />
 
-    <!-- Graduation Cap (Cut out from bubble) -->
-    <!-- Top Diamond -->
+    <!-- Graduation Cap (Cut out) -->
     <path
         android:fillColor="#09090B"
         android:pathData="M54,22l8.5,4.5l-8.5,4.5l-8.5,-4.5z" />
-    <!-- Bottom Part -->
     <path
         android:fillColor="#09090B"
         android:pathData="M48,29v3c0,1,2.7,2,6,2s6,-1,6,-2v-3c-1.5,1-4,1.5,-6,1.5s-4.5,-0.5,-6,-1.5z" />
-    <!-- Tassel -->
     <path
         android:fillColor="#09090B"
         android:pathData="M45.5,26.5v6.5c0,0.5 -0.4,1 -1,1s-1,-0.5 -1,-1s0.4,-1 1,-1v-5.5z" />
 
-    <!-- Arch at the bottom -->
+    <!-- Arch -->
     <path
         android:fillColor="#D9F99D"
         android:pathData="M25,80c20,-10 38,-10 58,0c-20,-6 -38,-6 -58,0z" />
