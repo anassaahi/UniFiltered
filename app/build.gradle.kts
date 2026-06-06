@@ -49,6 +49,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.google.ai.generativeai)
     implementation(libs.androidx.appcompat)
     implementation("com.google.firebase:firebase-appcheck-debug")
     implementation(libs.material)
@@ -83,4 +84,5 @@ dependencies {
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-firestore-ktx") // Using Firestore instead of Realtime DB
     implementation("com.google.firebase:firebase-storage-ktx")
+    implementation("com.google.firebase:firebase-functions-ktx")
 }

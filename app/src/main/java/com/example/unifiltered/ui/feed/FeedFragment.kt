@@ -4,22 +4,22 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.unifiltered.databinding.FragmentFeedBinding
+import com.example.unifiltered.viewmodel.AiSummaryState
 import com.example.unifiltered.viewmodel.FeedViewModel
 import kotlinx.coroutines.launch
 
 class FeedFragment : Fragment() {
 
-    // ViewBinding setup for Fragments is slightly different than Activities to prevent memory leaks
     private var _binding: FragmentFeedBinding? = null
     private val binding get() = _binding!!
 
-    // Grab the ViewModel
     private val viewModel: FeedViewModel by viewModels()
     private lateinit var postAdapter: PostAdapter
 
@@ -36,20 +36,34 @@ class FeedFragment : Fragment() {
 
         setupRecyclerView()
         observePosts()
+        observeAiSummary() // NEW!
 
-        // Opens the Create Post Screen
         binding.fabCreatePost.setOnClickListener {
             startActivity(android.content.Intent(requireContext(), CreatePostActivity::class.java))
         }
 
-        // NEW: Listen to the search bar and tell the ViewModel what is being typed
+        // Filters the list instantly as they type
         binding.etSearch.addTextChangedListener { editable ->
             viewModel.updateSearchQuery(editable.toString())
+        }
+
+        // NEW: Triggers the AI ONLY when they hit "Search" on the keyboard
+        binding.etSearch.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                val query = binding.etSearch.text.toString()
+                viewModel.generateAiSummaryForSearch(query)
+
+                // Optional: Hide the keyboard after searching
+                val imm = requireContext().getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+                imm.hideSoftInputFromWindow(binding.etSearch.windowToken, 0)
+                true
+            } else {
+                false
+            }
         }
     }
 
     private fun setupRecyclerView() {
-        // Get the current user's ID
         val currentUserId = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
         postAdapter = PostAdapter(
@@ -59,35 +73,60 @@ class FeedFragment : Fragment() {
                     putExtra("POST_ID", clickedPost.postId)
                     putExtra("AUTHOR_NAME", clickedPost.authorName)
                     putExtra("CONTENT", clickedPost.content)
-                    putExtra("LIKES_COUNT", clickedPost.likedBy.size) // Note: Updated this line!
-                    putExtra("IMAGE_URL", clickedPost.imageUrl) // NEW: Pass image URL
+                    putExtra("LIKES_COUNT", clickedPost.likedBy.size)
+                    putExtra("IMAGE_URL", clickedPost.imageUrl)
                 }
                 startActivity(intent)
             },
             onLikeClick = { clickedPost, isCurrentlyLiked ->
-                // Tell the ViewModel to update the database
                 viewModel.toggleLike(clickedPost.postId, isCurrentlyLiked)
             }
         )
 
         binding.recyclerViewFeed.apply {
             adapter = postAdapter
-            layoutManager = androidx.recyclerview.widget.LinearLayoutManager(requireContext())
+            layoutManager = LinearLayoutManager(requireContext())
         }
     }
 
     private fun observePosts() {
-        // Listen to the StateFlow from the ViewModel
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.posts.collect { postList ->
-                // Feed the data to our adapter. It handles the animations automatically!
                 postAdapter.submitList(postList)
+            }
+        }
+    }
+
+    // NEW: Observe the AI state and animate the UI
+    private fun observeAiSummary() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.aiSummaryState.collect { state ->
+                when (state) {
+                    is AiSummaryState.Idle -> {
+                        binding.cardAiSummary.visibility = View.GONE
+                    }
+                    is AiSummaryState.Loading -> {
+                        binding.cardAiSummary.visibility = View.VISIBLE
+                        binding.pbAiLoading.visibility = View.VISIBLE
+                        binding.tvAiResponse.text = "Thinking..."
+                    }
+                    is AiSummaryState.Success -> {
+                        binding.cardAiSummary.visibility = View.VISIBLE
+                        binding.pbAiLoading.visibility = View.GONE
+                        binding.tvAiResponse.text = state.response
+                    }
+                    is AiSummaryState.Error -> {
+                        binding.cardAiSummary.visibility = View.VISIBLE
+                        binding.pbAiLoading.visibility = View.GONE
+                        binding.tvAiResponse.text = state.message
+                    }
+                }
             }
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null // Clean up binding to prevent memory leaks
+        _binding = null
     }
 }

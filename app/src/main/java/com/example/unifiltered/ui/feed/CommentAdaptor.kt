@@ -6,14 +6,60 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.unifiltered.databinding.ItemCommentBinding
-import com.example.unifiltered.model.Comment
+import com.example.unifiltered.model.ThreadedComment
 
-class CommentAdapter : ListAdapter<Comment, CommentAdapter.CommentViewHolder>(CommentDiffCallback()) {
+class CommentAdapter(
+    private val onReplyClicked: (ThreadedComment) -> Unit
+) : ListAdapter<ThreadedComment, CommentAdapter.CommentViewHolder>(CommentDiffCallback()) {
 
     inner class CommentViewHolder(private val binding: ItemCommentBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(comment: Comment) {
+        fun bind(threaded: ThreadedComment) {
+            val comment = threaded.comment
+
             binding.tvCommentAuthor.text = comment.authorName
             binding.tvCommentText.text = comment.text
+
+            // --- THE REDDIT LINES MAGIC ---
+            // 1. Clear any old lines from recycling
+            binding.llDepthLines.removeAllViews()
+
+            val context = binding.root.context
+            val density = context.resources.displayMetrics.density
+
+            // 2. Draw a vertical line for every level of depth
+            for (i in 0 until threaded.depth) {
+
+                // Create a transparent spacer block (24dp wide) to separate the lines
+                val spacer = android.widget.FrameLayout(context).apply {
+                    layoutParams = android.widget.LinearLayout.LayoutParams(
+                        (24 * density).toInt(),
+                        android.view.ViewGroup.LayoutParams.MATCH_PARENT
+                    )
+                }
+
+                // Create the actual 2dp thick vertical orange line
+                val line = android.view.View(context).apply {
+                    layoutParams = android.widget.FrameLayout.LayoutParams(
+                        (2 * density).toInt(),
+                        android.view.ViewGroup.LayoutParams.MATCH_PARENT
+                    ).apply {
+                        // Put the line directly in the center of the 24dp spacer block
+                        gravity = android.view.Gravity.CENTER_HORIZONTAL
+                    }
+                    // Using your divider color #4A2E08.
+                    // (Change this to "#B8620E" if you want the lines to be brighter!)
+                    setBackgroundColor(android.graphics.Color.parseColor("#4A2E08"))
+                }
+
+                // Add the line to the spacer, and the spacer to the layout
+                spacer.addView(line)
+                binding.llDepthLines.addView(spacer)
+            }
+            // ------------------------------
+
+            binding.tvReplyButton.setOnClickListener {
+                onReplyClicked(threaded)
+            }
         }
     }
 
@@ -30,11 +76,11 @@ class CommentAdapter : ListAdapter<Comment, CommentAdapter.CommentViewHolder>(Co
         holder.bind(getItem(position))
     }
 
-    class CommentDiffCallback : DiffUtil.ItemCallback<Comment>() {
-        override fun areItemsTheSame(oldItem: Comment, newItem: Comment): Boolean {
-            return oldItem.commentId == newItem.commentId
+    class CommentDiffCallback : DiffUtil.ItemCallback<ThreadedComment>() {
+        override fun areItemsTheSame(oldItem: ThreadedComment, newItem: ThreadedComment): Boolean {
+            return oldItem.comment.commentId == newItem.comment.commentId
         }
-        override fun areContentsTheSame(oldItem: Comment, newItem: Comment): Boolean {
+        override fun areContentsTheSame(oldItem: ThreadedComment, newItem: ThreadedComment): Boolean {
             return oldItem == newItem
         }
     }

@@ -6,7 +6,6 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
-import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,77 +15,44 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
 import coil.load
 import com.example.unifiltered.databinding.FragmentProfileBinding
-import com.example.unifiltered.repository.PostRepository
 import com.example.unifiltered.ui.AdminDashboardActivity
 import com.example.unifiltered.ui.auth.LoginActivity
-import com.example.unifiltered.ui.feed.PostAdapter
-import com.example.unifiltered.ui.feed.PostDetailActivity
+import com.google.android.material.tabs.TabLayoutMediator
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.io.ByteArrayOutputStream
-
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
 class ProfileFragment : Fragment() {
 
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var postAdapter: PostAdapter
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
-    private val postRepo = PostRepository()
     private val storage = FirebaseStorage.getInstance()
-
-    // Permission launcher for camera and storage
-    private val permissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { permissions ->
+    private var isUploadingBanner = false
+    // Permissions & Upload Launchers
+    private val permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
         val cameraGranted = permissions[Manifest.permission.CAMERA] ?: false
-        val storageGranted = permissions[
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-                Manifest.permission.READ_MEDIA_IMAGES
-            else
-                Manifest.permission.READ_EXTERNAL_STORAGE
-        ] ?: false
-
-        if (cameraGranted && storageGranted) {
-            showImagePickerDialog()
-        } else {
-            Toast.makeText(requireContext(), "Permissions required to upload image", Toast.LENGTH_SHORT).show()
-        }
+        val storageGranted = permissions[if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) Manifest.permission.READ_MEDIA_IMAGES else Manifest.permission.READ_EXTERNAL_STORAGE] ?: false
+        if (cameraGranted && storageGranted) showImagePickerDialog() else Toast.makeText(requireContext(), "Permissions required", Toast.LENGTH_SHORT).show()
     }
 
-    // Image picker launcher (gallery)
-    private val galleryLauncher = registerForActivityResult(
-        ActivityResultContracts.GetContent()
-    ) { uri ->
-        uri?.let { imageUri ->
-            lifecycleScope.launch {
-                uploadProfileImage(imageUri)
-            }
-        }
+    private val galleryLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        uri?.let { lifecycleScope.launch { uploadProfileImage(it) } }
     }
 
-    // Camera launcher
-    private val cameraLauncher = registerForActivityResult(
-        ActivityResultContracts.TakePicturePreview()
-    ) { bitmap ->
-        bitmap?.let {
-            lifecycleScope.launch {
-                uploadProfileImageBitmap(it)
-            }
-        }
+    private val cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
+        bitmap?.let { lifecycleScope.launch { uploadProfileImageBitmap(it) } }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -95,235 +61,196 @@ class ProfileFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val currentUser = auth.currentUser
-        val currentUserId = currentUser?.uid ?: ""
-        val userEmail = currentUser?.email ?: ""
+        val currentUserId = currentUser?.uid ?: return
+        val userEmail = currentUser.email ?: ""
 
-        // 1. Basic UI Setup & Admin Check
-        binding.tvProfileEmail.text = userEmail
+        // Admin setup
         if (userEmail == "anas@gmail.com" || userEmail == "anasfaizsahi6@gmail.com") {
             binding.btnAdminLair.visibility = View.VISIBLE
         }
+        binding.btnAdminLair.setOnClickListener { startActivity(Intent(requireContext(), AdminDashboardActivity::class.java)) }
 
-        binding.btnAdminLair.setOnClickListener {
-            startActivity(Intent(requireContext(), AdminDashboardActivity::class.java))
-        }
+        // Setup image uploads
+        setupProfileImageUpload()
 
-        // 2. Setup Profile Image Upload
-        setupProfileImageUpload(currentUserId)
-
-        // 3. Fetch User's Name and Profile Image from Firestore
+        // 1. Fetch User Data for Header
         lifecycleScope.launch {
             try {
                 val userDoc = db.collection("users").document(currentUserId).get().await()
-                val name = userDoc.getString("name") ?: "Unknown User"
+
+                // Text fields
+                binding.tvProfileName.text = userDoc.getString("name") ?: "Unknown User"
+                binding.chipDepartment.text = userDoc.getString("department") ?: "BS Computer Science"
+                binding.chipBatch.text = userDoc.getString("batch") ?: "Class of '26"
+                binding.tvBio.text = userDoc.getString("bio") ?: "Write a bio to tell the campus who you are!"
+
+                // ... (inside the lifecycleScope.launch where you set the text) ...
+                val cred = userDoc.getLong("campusCred") ?: 0L
+                binding.tvCampusCred.text = cred.toString() // Set the number
+
+                // Trigger the flame animation!
+                startCredEruptionAnimation()
+
+                // Images
                 val profileImageUrl = userDoc.getString("profileImageUrl") ?: ""
+                val coverImageUrl = userDoc.getString("coverImageUrl") ?: ""
 
-                binding.tvProfileName.text = name
+                if (profileImageUrl.isNotEmpty()) binding.ivProfileImage.load(profileImageUrl) { crossfade(true) }
+                if (coverImageUrl.isNotEmpty()) binding.ivCoverBanner.load(coverImageUrl) { crossfade(true) }
 
-                // Load profile image if exists
-                if (profileImageUrl.isNotEmpty()) {
-                    binding.ivProfileImage.load(profileImageUrl) {
-                        crossfade(true)
-                    }
-                    binding.tvUploadHint.visibility = View.GONE
-                } else {
-                    binding.tvUploadHint.visibility = View.VISIBLE
-                }
             } catch (e: Exception) {
                 binding.tvProfileName.text = "Student"
             }
         }
 
-        // 4. Setup RecyclerView for "My Posts"
-        postAdapter = PostAdapter(
-            currentUserId = currentUserId,
-            onPostClick = { clickedPost ->
-                val intent = Intent(requireContext(), PostDetailActivity::class.java).apply {
-                    putExtra("POST_ID", clickedPost.postId)
-                    putExtra("AUTHOR_NAME", clickedPost.authorName)
-                    putExtra("CONTENT", clickedPost.content)
-                    putExtra("LIKES_COUNT", clickedPost.likedBy.size)
-                    putExtra("IMAGE_URL", clickedPost.imageUrl) // NEW: Pass image URL
-                }
-                startActivity(intent)
-            },
-            onLikeClick = { clickedPost, isCurrentlyLiked ->
-                lifecycleScope.launch {
-                    postRepo.toggleLike(clickedPost.postId, isCurrentlyLiked)
-                }
-            },
-            onDeleteClick = { postToDelete ->
-                showDeleteConfirmationDialog(postToDelete)
+        // 2. Setup the ViewPager & Tabs (The heavy lifting is now delegated here!)
+        val pagerAdapter = ProfilePagerAdapter(this)
+        binding.profileViewPager.adapter = pagerAdapter
+
+        TabLayoutMediator(binding.profileTabLayout, binding.profileViewPager) { tab, position ->
+            tab.text = when (position) {
+                0 -> "Posts"
+                1 -> "Comments"
+                2 -> "Saved"
+                else -> ""
             }
-        )
-
-        binding.recyclerViewMyPosts.apply {
-            adapter = postAdapter
-            layoutManager = LinearLayoutManager(requireContext())
+        }.attach()
+// Open Edit Profile Screen
+        binding.btnEditProfile.setOnClickListener {
+            startActivity(Intent(requireContext(), EditProfileActivity::class.java))
         }
-
-        // 5. Load the Posts & Hide Spinner
-        lifecycleScope.launch {
-            postRepo.getMyPosts(currentUserId).collect { posts ->
-                binding.profileProgressBar.visibility = View.GONE
-                postAdapter.submitList(posts)
-            }
-        }
-
-        // 6. Log Out Logic
+        // Logout
         binding.btnLogout.setOnClickListener {
             auth.signOut()
-            // Clear the activity stack and jump back to Login
-            val intent = Intent(requireContext(), LoginActivity::class.java).apply {
+            startActivity(Intent(requireContext(), LoginActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            }
-            startActivity(intent)
+            })
         }
     }
 
-    private fun showDeleteConfirmationDialog(post: com.example.unifiltered.model.Post) {
-        AlertDialog.Builder(requireContext())
-            .setTitle("Delete Post")
-            .setMessage("Are you sure you want to delete this post? This action cannot be undone.")
-            .setPositiveButton("Delete") { _, _ ->
-                lifecycleScope.launch {
-                    val result = postRepo.deletePost(post.postId, post.imageUrl)
-                    if (result.isSuccess) {
-                        Toast.makeText(requireContext(), "Post deleted", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(requireContext(), "Failed to delete: ${result.exceptionOrNull()?.message}", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
-
-    private fun setupProfileImageUpload(currentUserId: String) {
+    private fun setupProfileImageUpload() {
+        // Profile Image Clicks
         binding.btnUploadImage.setOnClickListener {
+            isUploadingBanner = false
+            checkPermissionsAndShowPicker()
+        }
+        binding.ivProfileImage.setOnClickListener {
+            isUploadingBanner = false
             checkPermissionsAndShowPicker()
         }
 
-        // Also allow clicking on the image itself to upload
-        binding.ivProfileImage.setOnClickListener {
+        // NEW: Cover Banner Click
+        binding.ivCoverBanner.setOnClickListener {
+            isUploadingBanner = true
             checkPermissionsAndShowPicker()
         }
     }
 
     private fun checkPermissionsAndShowPicker() {
         val permissionsNeeded = mutableListOf<String>()
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) permissionsNeeded.add(Manifest.permission.CAMERA)
+        val storagePerm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) Manifest.permission.READ_MEDIA_IMAGES else Manifest.permission.READ_EXTERNAL_STORAGE
+        if (ContextCompat.checkSelfPermission(requireContext(), storagePerm) != PackageManager.PERMISSION_GRANTED) permissionsNeeded.add(storagePerm)
 
-        // Camera permission
-        if (ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.CAMERA
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            permissionsNeeded.add(Manifest.permission.CAMERA)
-        }
-
-        // Storage permission
-        val storagePermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            Manifest.permission.READ_MEDIA_IMAGES
-        } else {
-            Manifest.permission.READ_EXTERNAL_STORAGE
-        }
-
-        if (ContextCompat.checkSelfPermission(
-                requireContext(),
-                storagePermission
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            permissionsNeeded.add(storagePermission)
-        }
-
-        if (permissionsNeeded.isNotEmpty()) {
-            permissionLauncher.launch(permissionsNeeded.toTypedArray())
-        } else {
-            showImagePickerDialog()
-        }
+        if (permissionsNeeded.isNotEmpty()) permissionLauncher.launch(permissionsNeeded.toTypedArray()) else showImagePickerDialog()
     }
 
     private fun showImagePickerDialog() {
-        val options = arrayOf("Take Photo", "Choose from Gallery", "Cancel")
         AlertDialog.Builder(requireContext())
             .setTitle("Upload Profile Image")
-            .setItems(options) { _, which ->
+            .setItems(arrayOf("Take Photo", "Choose from Gallery", "Cancel")) { _, which ->
                 when (which) {
-                    0 -> cameraLauncher.launch(null) // Take photo
-                    1 -> galleryLauncher.launch("image/*") // Pick from gallery
-                    2 -> {} // Cancel
+                    0 -> cameraLauncher.launch(null)
+                    1 -> galleryLauncher.launch("image/*")
                 }
-            }
-            .create()
-            .show()
+            }.show()
     }
 
+    // 1. For Gallery Uploads
     private suspend fun uploadProfileImage(imageUri: android.net.Uri) {
         try {
             val currentUserId = auth.currentUser?.uid ?: return
-            Toast.makeText(requireContext(), "Uploading image...", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Uploading...", Toast.LENGTH_SHORT).show()
 
-            // Upload to Firebase Storage
-            val fileName = "profile_images/${currentUserId}_${System.currentTimeMillis()}.jpg"
-            val storageRef = storage.reference.child(fileName)
+            // Route to the correct folder and database field
+            val folderName = if (isUploadingBanner) "cover_images" else "profile_images"
+            val dbField = if (isUploadingBanner) "coverImageUrl" else "profileImageUrl"
 
-            val uploadTask = storageRef.putFile(imageUri).await()
+            val storageRef = storage.reference.child("$folderName/${currentUserId}_${System.currentTimeMillis()}.jpg")
+            storageRef.putFile(imageUri).await()
             val downloadUrl = storageRef.downloadUrl.await().toString()
 
-            // Update Firestore with the image URL
-            db.collection("users").document(currentUserId).update(
-                mapOf("profileImageUrl" to downloadUrl)
-            ).await()
+            db.collection("users").document(currentUserId).update(dbField, downloadUrl).await()
 
-            // Update UI
-            binding.ivProfileImage.load(downloadUrl) {
-                crossfade(true)
+            // Update the correct UI element
+            if (isUploadingBanner) {
+                binding.ivCoverBanner.load(downloadUrl) { crossfade(true) }
+            } else {
+                binding.ivProfileImage.load(downloadUrl) { crossfade(true) }
             }
-            binding.tvUploadHint.visibility = View.GONE
 
-            Toast.makeText(requireContext(), "Profile image uploaded successfully!", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
-            Toast.makeText(requireContext(), "Failed to upload image: ${e.message}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Failed: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
 
+    // 2. For Camera Uploads
     private suspend fun uploadProfileImageBitmap(bitmap: Bitmap) {
         try {
             val currentUserId = auth.currentUser?.uid ?: return
-            Toast.makeText(requireContext(), "Uploading image...", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Uploading...", Toast.LENGTH_SHORT).show()
 
-            // Convert bitmap to byte array
             val baos = ByteArrayOutputStream()
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-            val imageData = baos.toByteArray()
 
-            // Upload to Firebase Storage
-            val fileName = "profile_images/${currentUserId}_${System.currentTimeMillis()}.jpg"
-            val storageRef = storage.reference.child(fileName)
+            // Route to the correct folder and database field
+            val folderName = if (isUploadingBanner) "cover_images" else "profile_images"
+            val dbField = if (isUploadingBanner) "coverImageUrl" else "profileImageUrl"
 
-            storageRef.putBytes(imageData).await()
+            val storageRef = storage.reference.child("$folderName/${currentUserId}_${System.currentTimeMillis()}.jpg")
+            storageRef.putBytes(baos.toByteArray()).await()
             val downloadUrl = storageRef.downloadUrl.await().toString()
 
-            // Update Firestore with the image URL
-            db.collection("users").document(currentUserId).update(
-                mapOf("profileImageUrl" to downloadUrl)
-            ).await()
+            db.collection("users").document(currentUserId).update(dbField, downloadUrl).await()
 
-            // Update UI
-            binding.ivProfileImage.load(downloadUrl) {
-                crossfade(true)
+            // Update the correct UI element
+            if (isUploadingBanner) {
+                binding.ivCoverBanner.load(downloadUrl) { crossfade(true) }
+            } else {
+                binding.ivProfileImage.load(downloadUrl) { crossfade(true) }
             }
-            binding.tvUploadHint.visibility = View.GONE
 
-            Toast.makeText(requireContext(), "Profile image uploaded successfully!", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
-            Toast.makeText(requireContext(), "Failed to upload image: ${e.message}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Failed: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+    private fun startCredEruptionAnimation() {
+        val eruptionRing = binding.viewCredEruption
+
+        // 1. Expand outward (X and Y axis)
+        val scaleX = ObjectAnimator.ofFloat(eruptionRing, View.SCALE_X, 1f, 2.8f).apply {
+            repeatCount = ObjectAnimator.INFINITE
+            duration = 1500 // 1.5 seconds per pulse
+        }
+        val scaleY = ObjectAnimator.ofFloat(eruptionRing, View.SCALE_Y, 1f, 2.8f).apply {
+            repeatCount = ObjectAnimator.INFINITE
+            duration = 1500
+        }
+
+        // 2. Fade out as it expands
+        val alpha = ObjectAnimator.ofFloat(eruptionRing, View.ALPHA, 0.8f, 0f).apply {
+            repeatCount = ObjectAnimator.INFINITE
+            duration = 1500
+        }
+
+        // 3. Play them all at the exact same time
+        AnimatorSet().apply {
+            playTogether(scaleX, scaleY, alpha)
+            start()
+        }
     }
 }

@@ -153,15 +153,14 @@ class PostRepository {
     }
 
     // 2. Add a new comment to a specific post's sub-collection
-    suspend fun addComment(postId: String, text: String): Result<Boolean> {
+    // 2. Add a new comment (or reply) to a specific post's sub-collection
+    suspend fun addComment(postId: String, text: String, parentId: String? = null): Result<Boolean> {
         return try {
             val currentUser = auth.currentUser ?: throw Exception("User not logged in")
 
-            // Get the user's name again so it shows up on the comment
             val userDoc = db.collection("users").document(currentUser.uid).get().await()
             val authorName = userDoc.getString("name") ?: "Unknown Student"
 
-            // Point to the sub-collection and generate a new unique ID
             val commentRef = db.collection("posts").document(postId).collection("comments").document()
 
             val newComment = com.example.unifiltered.model.Comment(
@@ -169,12 +168,12 @@ class PostRepository {
                 authorId = currentUser.uid,
                 authorName = authorName,
                 text = text,
-                timestamp = System.currentTimeMillis()
+                timestamp = System.currentTimeMillis(),
+                parentId = parentId // NEW: Save the reply link!
             )
-            // Save the comment in the sub-collection
+
             commentRef.set(newComment).await()
 
-            // NEW: Instantly add +1 to the parent Post's comment counter!
             db.collection("posts").document(postId).update("commentsCount", FieldValue.increment(1)).await()
 
             Result.success(true)
