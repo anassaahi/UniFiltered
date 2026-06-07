@@ -42,6 +42,26 @@ class FeedFragment : Fragment() {
             startActivity(android.content.Intent(requireContext(), CreatePostActivity::class.java))
         }
 
+        binding.btnMenu.setOnClickListener { view ->
+            val popup = androidx.appcompat.widget.PopupMenu(requireContext(), view)
+            popup.menu.add("FAQ")
+            popup.menu.add("Help")
+            popup.setOnMenuItemClickListener { item ->
+                when (item.title) {
+                    "FAQ" -> {
+                        startActivity(android.content.Intent(requireContext(), com.example.unifiltered.ui.FAQActivity::class.java))
+                        true
+                    }
+                    "Help" -> {
+                        startActivity(android.content.Intent(requireContext(), com.example.unifiltered.ui.HelpActivity::class.java))
+                        true
+                    }
+                    else -> false
+                }
+            }
+            popup.show()
+        }
+
         // Filters the list instantly as they type
         binding.etSearch.addTextChangedListener { editable ->
             viewModel.updateSearchQuery(editable.toString())

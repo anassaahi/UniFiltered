@@ -43,6 +43,14 @@
             android:exported="false" />
 
         <activity
+            android:name=".ui.FAQActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.HelpActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".ui.auth.SignupActivity"
             android:exported="false" />
 
