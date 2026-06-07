@@ -1,5 +1,47 @@
 <resources>
     <string name="app_name">UniFiltered</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="faq_title">F.A.Q</string>
+    <string name="search_hint_ai">Search with J.A.R.V.I.S&#8230;</string>
+    <string name="back_desc">Back</string>
+    <string name="search_desc">Search</string>
+    <string name="info_desc">Info</string>
+    <string name="go_desc">Go</string>
+    <string name="response_time">Response time: Usually within 24 hours</string>
+    <string name="community_guidelines">Community Guidelines</string>
+    <string name="community_guidelines_desc">Learn about our rules and safety.</string>
+    <string name="ai_label">AI</string>
+    <string name="ai_assistance">AI ASSISTANCE</string>
+    <string name="general">GENERAL</string>
+
+    <!-- FAQ Questions -->
+    <string name="q_jarvis_summon">How do I summon @jarvis?</string>
+    <string name="a_jarvis_summon">Simply mention @jarvis in any comment section. Our AI agent will analyze the post and provide an intelligent response or summary.</string>
+
+    <string name="q_ai_search">What is \'AI-Enhanced Search\'?</string>
+    <string name="a_ai_search">Unlike regular search, AI-enhanced search understands context. It doesn\'t just look for keywords but finds the most relevant campus events, discussions, and news for you.</string>
+
+    <string name="q_verification">How do I get a verification badge?</string>
+    <string name="a_verification">Go to your society page and click \'Apply for Official Badge\'. University admins will review your credentials.</string>
+
+    <string name="q_join_society">How to join a university society?</string>
+    <string name="a_join_society">Browse societies in the \'Discover\' tab. Once you find one you like, hit \'Join\'. Some societies might require admin approval.</string>
+
+    <string name="q_report">How do I report inappropriate content?</string>
+    <string name="a_report">Click the three dots (⋮) on the top right of any post and select \'Report\'. Our moderation team reviews all reports within 24 hours.</string>
+
+    <string name="q_anonymous">Can I post anonymously?</string>
+    <string name="a_anonymous">Yes, when creating a post, toggle the \'Anonymous\' switch. Your identity will be hidden from everyone except system admins (for safety purposes).</string>
+
+    <string name="q_flame_cred">What is \'Flame Cred\'?</string>
+    <string name="a_flame_cred">Flame Cred is our reputation system. You earn it by posting helpful content, getting upvotes, and contributing to society discussions. Higher cred unlocks exclusive badges!</string>
+
+    <string name="q_theme">Can I customize my profile theme?</string>
+    <string name="a_theme">Currently, the app follows the Industrial Tech theme. We are working on allowing users to customize their profile accents in future updates.</string>
+
+    <string name="help_title">Help &amp; Support</string>
+    <string name="need_assistance">Need assistance?</string>
+    <string name="help_desc">If you encounter any issues with the UniFiltered app, please reach out to us.</string>
+    <string name="contact_support">Contact Support</string>
+    <string name="support_email">support@unifiltered.edu</string>
+    <string name="app_version">App Version: 1.0.0 (Tech Palette Edition)</string>
 </resources>
