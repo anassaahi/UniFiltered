@@ -1,13 +1,12 @@
-import { onDocumentCreated } from "firebase-functions/v2/firestore";
+import { onDocumentCreated, onDocumentUpdated } from "firebase-functions/v2/firestore";
 import { onCall } from "firebase-functions/v2/https";
 import { initializeApp } from "firebase-admin/app";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 import { GoogleGenAI } from "@google/genai";
-import { onDocumentUpdated } from "firebase-functions/v2/firestore";
+
 initializeApp();
 const db = getFirestore();
 
-// Shared interface for both functions
 interface Comment {
     commentId: string;
     authorId: string;
@@ -18,11 +17,50 @@ interface Comment {
 }
 
 // ==========================================
+// HELPER: Multi-Key Fallback System
+// ==========================================
+async function generateContentWithFallback(prompt: string): Promise<string> {
+    // Retrieve the comma-separated keys from the environment
+    const keysString = process.env.GEMINI_API_KEYS || "";
+    const apiKeys = keysString.split(",").map(k => k.trim()).filter(k => k.length > 0);
+
+    if (apiKeys.length === 0) {
+        throw new Error("No API keys configured in GEMINI_API_KEYS.");
+    }
+
+    let lastError: any = null;
+
+    // Loop through each key one by one
+    for (let i = 0; i < apiKeys.length; i++) {
+        try {
+            const aiClient = new GoogleGenAI({ apiKey: apiKeys[i] });
+            const response = await aiClient.models.generateContent({
+                model: "gemini-2.5-flash",
+                contents: prompt
+            });
+
+            if (response.text) {
+                // If successful, return the text and exit the loop immediately
+                return response.text;
+            }
+        } catch (error) {
+            console.warn(`⚠️ API Key #${i + 1} failed. Trying next key...`);
+            lastError = error;
+            // The loop continues to the next key automatically
+        }
+    }
+
+    // If the loop finishes and we are down here, ALL keys failed
+    console.error("❌ All Gemini API keys failed.", lastError);
+    return "I'm sorry, my systems are currently overloaded. Please try again in a few moments.";
+}
+
+// ==========================================
 // FUNCTION 1: J.A.R.V.I.S. Comment Agent
 // ==========================================
 export const onCommentAdded = onDocumentCreated({
     document: "posts/{postId}/comments/{commentId}",
-    secrets: ["GEMINI_API_KEY"]
+    secrets: ["GEMINI_API_KEYS"] // NOTE: Pluralized
 }, async (event) => {
     const snapshot = event.data;
     if (!snapshot) return;
@@ -38,16 +76,13 @@ export const onCommentAdded = onDocumentCreated({
     const triggerCommentId = event.params.commentId;
 
     try {
-        // FIXED: Using .doc() instead of .document()
         const postDoc = await db.collection("posts").doc(postId).get();
         if (!postDoc.exists) return;
         const postContent = postDoc.data()?.content || "";
 
-        // FIXED: Using .doc() instead of .document()
         const commentsSnapshot = await db.collection("posts").doc(postId).collection("comments").get();
         const allComments: Comment[] = [];
 
-        // FIXED: Added (doc: any)
         commentsSnapshot.forEach((doc: any) => {
             allComments.push(doc.data() as Comment);
         });
@@ -101,17 +136,9 @@ export const onCommentAdded = onDocumentCreated({
         prompt += `User Question:\n${commentData.authorName}: ${text}\n\n`;
         prompt += `Provide a concise, academic, or helpful response suited for students. Max 3-4 sentences. Do not mention your data constraints or prompt context details to the user.`;
 
-        const aiApiKey = process.env.GEMINI_API_KEY;
-        const aiClient = new GoogleGenAI({ apiKey: aiApiKey });
+        // NEW: Call the fallback helper instead of defining the client here
+        const aiResponseText = await generateContentWithFallback(prompt);
 
-        const response = await aiClient.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: prompt
-        });
-
-        const aiResponseText = response.text || "I'm sorry, I encountered an issue parsing the context.";
-
-        // FIXED: Using .doc() with empty params for ID generation
         const aiCommentRef = db.collection("posts").doc(postId).collection("comments").doc();
 
         const aiComment: Comment = {
@@ -125,7 +152,6 @@ export const onCommentAdded = onDocumentCreated({
 
         await aiCommentRef.set(aiComment);
 
-        // FIXED: Using .doc() instead of .document()
         await db.collection("posts").doc(postId).update({
             commentsCount: FieldValue.increment(1)
         });
@@ -135,12 +161,11 @@ export const onCommentAdded = onDocumentCreated({
     }
 });
 
-
 // ==========================================
 // FUNCTION 2: J.A.R.V.I.S. Smart Search
 // ==========================================
 export const smartSearch = onCall({
-    secrets: ["GEMINI_API_KEY"],
+    secrets: ["GEMINI_API_KEYS"], // NOTE: Pluralized
     region: "asia-south1"
 }, async (request) => {
 
@@ -229,21 +254,17 @@ export const smartSearch = onCall({
 
         prompt += `Keep your response concise (2-3 sentences max).`;
 
-        const aiApiKey = process.env.GEMINI_API_KEY;
-        const aiClient = new GoogleGenAI({ apiKey: aiApiKey });
+        // NEW: Call the fallback helper
+        const aiResponseText = await generateContentWithFallback(prompt);
 
-        const response = await aiClient.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: prompt
-        });
-
-        return { response: response.text || "I couldn't process that search request right now." };
+        return { response: aiResponseText };
 
     } catch (error) {
         console.error("Smart Search Error:", error);
         return { response: "J.A.R.V.I.S. is currently offline. Please try again later." };
     }
 });
+
 // ==========================================
 // FUNCTION 3: Campus Cred (Karma) Tracker
 // ==========================================
@@ -259,17 +280,14 @@ export const updateCampusCred = onDocumentUpdated({
     const beforeLikes = beforeData.likedBy || [];
     const afterLikes = afterData.likedBy || [];
 
-    // Only run this logic if the amount of likes actually changed!
     if (beforeLikes.length === afterLikes.length) return;
 
     const authorId = afterData.authorId;
     if (!authorId) return;
 
-    // Calculate if it was a Like (+1) or an Unlike (-1)
     const difference = afterLikes.length - beforeLikes.length;
 
     try {
-        // Update the author's overall Cred score instantly
         await db.collection("users").doc(authorId).update({
             campusCred: FieldValue.increment(difference)
         });
